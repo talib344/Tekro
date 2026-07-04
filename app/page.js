@@ -2,104 +2,64 @@
 import { useState } from 'react'
 
 export default function Home() {
-  const [msg, setMsg] = useState('')
   const [chat, setChat] = useState([])
+  const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const send = async () => {
-    if (!msg.trim()) return
-    
-    const userMsg = msg
-    setMsg('')
+  const sendMessage = async () => {
+    if (!input.trim()) return
+    const newChat = [...chat, { q: input, a: '' }]
+    setChat(newChat)
+    setInput('')
     setLoading(true)
-    setChat(prev => [...prev, { q: userMsg, a: '...' }])
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg })
-      })
-      
-      const data = await res.json()
-      
-      setChat(prev => {
-        const newChat = [...prev]
-        newChat[newChat.length - 1].a = data.reply || 'Error: No reply'
-        return newChat
-      })
-    } catch (err) {
-      setChat(prev => {
-        const newChat = [...prev]
-        newChat[newChat.length - 1].a = 'Error: ' + err.message
-        return newChat
-      })
-    }
+    
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: input })
+    })
+    const data = await res.json()
+    newChat[newChat.length - 1].a = data.reply || 'Error: No reply'
+    setChat(newChat)
     setLoading(false)
   }
 
   return (
-    <main style={{
-      padding: 20, 
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: 800,
-      margin: '0 auto'
-    }}>
-      <h1 style={{textAlign: 'center'}}>Tekro AI</h1>
-      
-      <div style={{
-        border: '1px solid #ddd',
-        borderRadius: 8,
-        padding: 16,
-        height: 400,
-        overflowY: 'auto',
-        marginBottom: 16,
-        background: '#fafafa'
-      }}>
-        {chat.length === 0 && <p style={{color: '#888'}}>Start chatting with Tekro AI...</p>}
+    <div className="min-h-screen bg-black text-white flex flex-col items-center p-4">
+      {/* PURANA LOGO STYLE WAPAS */}
+      <div className="text-center my-6">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+          Tekro AI
+        </h1>
+        <p className="text-sm text-gray-400 mt-1">2030</p>
+      </div>
+
+      <div className="w-full max-w-2xl flex-1 bg-gray-900 rounded-lg p-4 overflow-y-auto mb-4 border border-gray-800">
         {chat.map((c, i) => (
-          <div key={i} style={{marginBottom: 12}}>
-            <div style={{marginBottom: 4}}>
-              <b>You:</b> {c.q}
-            </div>
-            <div style={{color: '#2563eb'}}>
-              <b>AI:</b> {c.a}
-            </div>
+          <div key={i} className="mb-4">
+            <p className="text-gray-300"><b>You:</b> {c.q}</p>
+            <p className="text-blue-400"><b>AI:</b> {c.a || (loading && i === chat.length - 1 ? '...' : '')}</p>
           </div>
         ))}
       </div>
 
-      <div style={{display: 'flex', gap: 8}}>
+      <div className="w-full max-w-2xl flex gap-2">
         <input
-          value={msg}
-          onChange={e => setMsg(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && !loading && send()}
+          className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Type your message..."
           disabled={loading}
-          style={{
-            flex: 1,
-            padding: 12,
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            fontSize: 16
-          }}
         />
         <button 
-          onClick={send} 
-          disabled={loading || !msg.trim()}
-          style={{
-            padding: '12px 24px',
-            background: loading ? '#ccc' : '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: 6,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: 16
-          }}
+          onClick={sendMessage} 
+          disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 px-6 rounded-lg font-semibold disabled:opacity-50"
         >
-          {loading ? 'Sending...' : 'Send'}
+          Send
         </button>
       </div>
-    </main>
+    </div>
   )
 }
