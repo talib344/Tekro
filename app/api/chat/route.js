@@ -28,13 +28,10 @@ export async function POST(req) {
       }),
     })
 
-    if (!res.ok) {
-      throw new Error('Groq API Error')
-    }
+    if (!res.ok) throw new Error('Groq API Error')
 
     const data = await res.json()
     const reply = data.choices[0].message.content
-
     return NextResponse.json({ reply })
 
   } catch (error) {
@@ -42,4 +39,3 @@ export async function POST(req) {
     return NextResponse.json({ reply: 'Server error. Check API key.' }, { status: 500 })
   }
 }
-   
