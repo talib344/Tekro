@@ -40,78 +40,86 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white flex justify-center p-4">
-      <div className="w-full max-w-md bg-[#1E293B] rounded-2xl p-5 my-4 shadow-2xl border border-[#334155]">
-        
-        {/* LOGO */}
-        <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold text-[#38BDF8]">
-            Tekro-AI 2030
-          </h1>
-          <p className="text-xs text-gray-400 mt-1">
-            2x Faster | 10x Better | 100+ Languages | By Talib Ali 🇵🇰
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white flex justify-center p-4">
+      
+      {/* BACKGROUND BLUR CIRCLES */}
+      <div className="fixed top-20 left-10 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+      <div className="fixed bottom-20 right-10 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
 
-        {/* BUTTONS GRID */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {buttons.map((btn) => (
-            <button
-              key={btn.name}
-              onClick={() => setActiveMode(btn.name)}
-              className={`p-3 rounded-lg text-sm font-medium transition ${
-                activeMode === btn.name 
-                 ? 'bg-[#38BDF8] text-black' 
-                  : 'bg-[#334155] hover:bg-[#475569] text-white'
-              }`}
-            >
-              {btn.icon} {btn.name}
-            </button>
-          ))}
-        </div>
-
-        {/* CHAT BOX */}
-        <div className="bg-[#0F172A] rounded-xl p-3 h-80 overflow-y-auto mb-3 border border-[#334155]">
-          {chat.length === 0 && (
-            <p className="text-gray-500 text-center text-sm mt-32">
-              {activeMode} mode active. Ask anything...
+      <div className="w-full max-w-md my-4 z-10">
+        {/* GLASS CARD */}
+        <div className="backdrop-blur-xl bg-white/10 rounded-3xl p-6 shadow-2xl border border-white/20">
+          
+          {/* LOGO */}
+          <div className="text-center mb-5">
+            <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+              Tekro-AI 2030
+            </h1>
+            <p className="text-xs text-gray-300 mt-2">
+              2x Faster | 10x Better | 100+ Languages | By Talib Ali 🇵🇰
             </p>
-          )}
-          {chat.map((c, i) => (
-            <div key={i} className="mb-3">
-              <div className="flex justify-end mb-1">
-                <div className="bg-[#38BDF8] text-black px-4 py-2 rounded-2xl rounded-br-none max-w-[80%]">
-                  {c.q}
-                </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="bg-[#334155] px-4 py-2 rounded-2xl rounded-bl-none max-w-[80%]">
-                  {c.a || (loading && i === chat.length - 1? '...' : '')}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+          </div>
 
-        {/* INPUT */}
-        <div className="flex gap-2">
-          <input
-            className="flex-1 p-3 rounded-lg bg-[#0F172A] border border-[#334155] text-white placeholder-gray-500 text-sm"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Ask anything..."
-            disabled={loading}
-          />
-          <button 
-            onClick={() => sendMessage()} 
-            disabled={loading}
-            className="bg-[#38BDF8] hover:bg-[#0EA5E9] text-black px-5 rounded-lg font-semibold disabled:opacity-50"
-          >
-            Send
-          </button>
+          {/* BUTTONS GRID */}
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {buttons.map((btn) => (
+              <button
+                key={btn.name}
+                onClick={() => setActiveMode(btn.name)}
+                className={`p-3 rounded-xl text-sm font-semibold transition-all duration-300 border ${
+                  activeMode === btn.name 
+                   ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg shadow-blue-500/50 scale-105' 
+                    : 'bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-white/20'
+                }`}
+              >
+                {btn.icon} {btn.name}
+              </button>
+            ))}
+          </div>
+
+          {/* CHAT BOX */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-4 h-80 overflow-y-auto mb-4 border border-white/10">
+            {chat.length === 0 && (
+              <p className="text-gray-400 text-center text-sm mt-32">
+                {activeMode} mode active. Ask anything...
+              </p>
+            )}
+            {chat.map((c, i) => (
+              <div key={i} className="mb-4">
+                <div className="flex justify-end mb-2">
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-2xl rounded-br-md max-w-[80%] shadow-lg">
+                    {c.q}
+                  </div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-2xl rounded-bl-md max-w-[80%] border border-white/10">
+                    {c.a || (loading && i === chat.length - 1? '...' : '')}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* INPUT */}
+          <div className="flex gap-2">
+            <input
+              className="flex-1 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cyan-400 transition"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              placeholder="Ask anything..."
+              disabled={loading}
+            />
+            <button 
+              onClick={() => sendMessage()} 
+              disabled={loading}
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 rounded-xl font-bold disabled:opacity-50 transition-all duration-300 shadow-lg shadow-blue-500/30"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>
   )
-}
+                }
