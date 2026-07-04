@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tekro-AI 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #4dabf7;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(77, 171, 247, 0.2);
+            color: #4dabf7;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn.active, .btn:hover {
+            background: #4dabf7;
+            color: #fff;
+        }
+        .chat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .msg {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-msg {
+            background: #4dabf7;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-msg {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            outline: none;
+        }
+        #sendBtn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: #4dabf7;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tekro-AI 2026</h1>
+        <p class="subtitle">2x Faster | 10x Better | 100+ Languages | By Talib Ali 🇵🇰</p>
+        
+        <div class="buttons">
+            <button class="btn active" data-mode="chat">🤖 AI Chat 2x</button>
+            <button class="btn" data-mode="code">💻 Code Gen</button>
+            <button class="btn" data-mode="debug">🐛 Debug Code</button>
+            <button class="btn" data-mode="search">🔍 Web Search</button>
+            <button class="btn" data-mode="pdf">📄 PDF Analyze</button>
+            <button class="btn" data-mode="image">🖼️ Image AI</button>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="msg bot-msg">Assalam o Alaikum! Main Tekro AI hun. Kya madad kar sakta hun?</div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Ask anything..." />
+            <button id="sendBtn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api/index';
+        
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        let currentMode = 'chat';
+
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+            });
+        });
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            userInput.value = '';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        mode: currentMode,
+                        language: 'Urdu'
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+                addMessage(data.reply || 'Koi jawab nahi mila', 'bot');
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Server se baat nahi ho rahi. Thodi der baad try karo.', 'bot');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+            }
+        }
+
+        function addMessage(text, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${type}-msg`;
+            msgDiv.textContent = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
