@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tekro-AI 2026</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg: linear-gradient(135deg, #0f172a, #1e1b4b);
+      --card: rgba(255,255,255,0.05);
+      --text: #fff;
+      --border: rgba(255,255,255,0.1);
+    }
+    body.light {
+      --bg: linear-gradient(135deg, #e0e7ff, #fce7f3);
+      --card: rgba(0,0,0,0.05);
+      --text: #0f172a;
+      --border: rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      transition: 0.3s;
+    }
+   .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+   .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+   .logo {
+      width: 45px; height: 45px;
+      background: linear-gradient(135deg, #3b82f6, #ec4899);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 900;
+    }
+   .title { font-size: 22px; font-weight: 700;
+             background: linear-gradient(135deg, #60a5fa, #f472b6);
+             -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+   .controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+   .btn, select {
+      padding: 10px 16px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-size: 14px; cursor: pointer;
+    }
+   .btn-pro {
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      border: none; font-weight: 600; color: #fff;
+    }
+   .main-title {
+      text-align: center; font-size: 32px; font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin: 30px 0 10px;
+    }
+   .subtitle { text-align: center; opacity: 0.7; margin-bottom: 25px; }
+   .input-area {
+      position: relative; background: var(--card);
+      border: 1px solid var(--border); border-radius: 15px;
+      padding: 15px; margin-bottom: 20px;
+    }
+    #userInput {
+      width: 100%; background: transparent; border: none;
+      color: var(--text); font-size: 16px; outline: none; padding-right: 40px;
+    }
+   .mic {
+      position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; font-size: 20px;
+    }
+   .mic.recording { color: #ef4444; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+   .grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+   .grid-btn {
+      padding: 14px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 12px;
+      color: var(--text); text-align: center; cursor: pointer;
+      transition: 0.2s;
+    }
+   .grid-btn:hover { background: rgba(56,189,248,0.1); }
+   .grid-btn.active { border-color: #38bdf8; background: rgba(56,189,248,0.15); }
+    #chatBox {
+      margin-top: 20px; max-height: 400px; overflow-y: auto;
+      background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px;
+      display: none;
+    }
+   .msg { margin: 10px 0; padding: 12px 14px; border-radius: 10px; position: relative; }
+   .userMsg { background: #3b82f6; margin-left: auto; max-width: 85%; color: #fff; }
+   .aiMsg { background: var(--card); max-width: 85%; white-space: pre-wrap; }
+   .copyBtn {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,0.3); border: none; color: #fff;
+      padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px;
+    }
+    label { display: flex; align-items: center; gap: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">T</div>
+      <div class="title">ekro-AI 2026</div>
+    </div>
+
+    <div class="controls">
+      <label class="btn"><input type="checkbox" id="autoPlay"> Auto Play</label>
+      <select id="lang">
+        <option value="English">English</option>
+        <option value="Urdu">Urdu</option>
+        <option value="Hindi">Hindi</option>
+        <option value="Arabic">Arabic</option>
+        <option value="Spanish">Spanish</option>
+        <option value="French">French</option>
+        <option value="German">German</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Turkish">Turkish</option>
+        <option value="Persian">Persian</option>
+        <option value="Bengali">Bengali</option>
+      </select>
+    </div>
+
+    <div class="controls">
+      <button class="btn">Talib Ali</button>
+      <button class="btn btn-pro">⚡ Pro $3/mo</button>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="toggleTheme()">🌙/☀️</button>
+      <button class="btn" onclick="alert('Login coming soon')">Logout</button>
+    </div>
+  </div>
+
+  <div class="main-title">Tekro-AI 2026</div>
+  <div class="subtitle">2x Faster | 10x Better | 100+ Languages | By Talib Ali 🇵🇰</div>
+
+  <div class="container">
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Ask anything..." />
+      <span class="mic" id="micBtn" onclick="toggleMic()">🎤</span>
+    </div>
+
+    <div class="grid">
+      <div class="grid-btn active" onclick="setMode('chat',this)">🤖 AI Chat 2x</div>
+      <div class="grid-btn" onclick="setMode('code',this)">💻 Code Gen</div>
+      <div class="grid-btn" onclick="setMode('debug',this)">🐛 Debug Code</div>
+      <div class="grid-btn" onclick="alert('Coming soon - needs API key')">🔍 Web Search</div>
+      <div class="grid-btn" onclick="alert('Coming soon - needs API key')">📄 PDF Analyze</div>
+      <div class="grid-btn" onclick="alert('Coming soon - needs API key')">🖼️ Image AI</div>
+    </div>
+
+    <div id="chatBox"></div>
+  </div>
+
+  <script>
+    const API = '/.netlify/functions/api';
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
+    const langSelect = document.getElementById('lang');
+    const autoPlay = document.getElementById('autoPlay');
+    let mode = 'chat';
+    let recognition;
+
+    function setMode(m, btn) {
+      mode = m;
+      document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+    }
+
+    function toggleMic() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Browser mic not supported. Use Chrome.');
+        return;
+      }
+      if (!recognition) {
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.onresult = e => {
+          input.value = e.results[0][0].transcript;
+          document.getElementById('micBtn').classList.remove('recording');
+          sendMsg();
+        };
+      }
+      document.getElementById('micBtn').classList.add('recording');
+      recognition.start();
+    }
+
+    function speak(text) {
+      if (!autoPlay.checked) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = langSelect.value === 'Urdu'? 'ur-PK' : 'en-US';
+      speechSynthesis.speak(utter);
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied!');
+    }
+
+    async function sendMsg() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      chatBox.style.display = 'block';
+      chatBox.innerHTML += `<div class="msg userMsg">${text}</div>`;
+      input.value = '';
+      chatBox.innerHTML += `<div class="msg aiMsg" id="loading">Soch raha hun...</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: text,
+            mode: mode,
+            lang: langSelect.value
+          })
+        });
+        const data = await res.json();
+        document.getElementById('loading').remove();
+        const reply = data.reply || data.error || 'Error';
+        chatBox.innerHTML += `<div class="msg aiMsg">${reply}<button class="copyBtn" onclick="copyText(\`${reply.replace(/`/g,'\\`')}\`)">Copy</button></div>`;
+        speak(reply);
+      } catch (e) {
+        document.getElementById('loading').remove();
+        chatBox.innerHTML += `<div class="msg aiMsg">Network Error. Netlify credits check kar.</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    input.onkeydown = e => { if (e.key === 'Enter') sendMsg(); };
+  </script>
+</body>
+</html>
