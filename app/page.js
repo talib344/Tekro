@@ -9,79 +9,52 @@ export default function Home() {
   const categories = [
     'All', 'AI Chat', 'Image', 'Video', 'Audio', 'Code', 'Writing', 'Business'
   ]
-
   const tools = [
     {
       id: 1,
-      name: 'Tekro AI Chat',
+      name: 'AI Chat 2030',
       category: 'AI Chat',
-      desc: 'Advanced conversational AI powered by GPT-4',
+      desc: 'Voice input/output ke saath advanced GPT-4 chat. Real-time baat karo',
       icon: '💬',
-      rating: 4.9,
-      users: '2.4M'
+      rating: 5.0,
+      users: 'Live',
+      link: '/chat',
+      feature: 'chat'
     },
     {
       id: 2,
-      name: 'ImageGen Pro',
-      category: 'Image',
-      desc: 'Create stunning AI images in seconds',
+      name: 'Image Generator Pro',
+      category: 'Image', 
+      desc: 'Text se real images banao. SDXL + DALL-E 3. HD quality output',
       icon: '🎨',
-      rating: 4.8,
-      users: '1.8M'
+      rating: 4.9,
+      users: 'Live',
+      link: '/image',
+      feature: 'image'
     },
     {
       id: 3,
-      name: 'VideoForge AI',
-      category: 'Video',
-      desc: 'Generate professional videos from text',
-      icon: '🎬',
-      rating: 4.7,
-      users: '950K'
+      name: 'Voice AI Studio',
+      category: 'Audio',
+      desc: 'Voice input se text, text se voice. 50+ languages, real voices',
+      icon: '🎙️',
+      rating: 4.9,
+      users: 'Live', 
+      link: '/voice',
+      feature: 'voice'
     },
     {
       id: 4,
-      name: 'AudioCraft',
-      category: 'Audio',
-      desc: 'AI voice synthesis and music generation',
-      icon: '🎵',
+      name: 'Video Editor AI',
+      category: 'Video',
+      desc: 'AI video editing real. Auto-cut, captions, effects, export 4K',
+      icon: '🎬',
       rating: 4.8,
-      users: '1.2M'
-    },
-    {
-      id: 5,
-      name: 'CodeWizard',
-      category: 'Code',
-      desc: 'AI-powered code generation and debugging',
-      icon: '⚡',
-      rating: 4.9,
-      users: '3.1M'
-    },
-    {
-      id: 6,
-      name: 'WriteSmart AI',
-      category: 'Writing',
-      desc: 'Content creation for blogs and marketing',
-      icon: '✍️',
-      rating: 4.7,
-      users: '1.5M'
-    },
-    {
-      id: 7,
-      name: 'BizAnalyst',
-      category: 'Business',
-      desc: 'AI business insights and automation',
-      icon: '📊',
-      rating: 4.6,
-      users: '800K'
-    },
-    {
-      id: 8,
-      name: 'PhotoEnhance AI',
-      category: 'Image',
-      desc: 'Upscale and restore images with AI',
-      icon: '🖼️',
-      rating: 4.8,
-      users: '2.1M'
+      users: 'Live',
+      link: '/video',
+      feature: 'video'
+    }
+  ]
     }
   ]
 
