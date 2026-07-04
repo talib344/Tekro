@@ -24,7 +24,7 @@ export default function Home() {
       newChat[newChat.length - 1].a = data.reply || 'Error: No reply'
       setChat(newChat)
     } catch (err) {
-      newChat[newChat.length - 1].a = 'Server se baat nahi ho rahi. Thodi der baad try karo.'
+      newChat[newChat.length - 1].a = 'Server error. API key check karo.'
       setChat(newChat)
     }
     setLoading(false)
@@ -41,16 +41,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white flex justify-center p-4">
-      
-      {/* BACKGROUND BLUR CIRCLES */}
       <div className="fixed top-20 left-10 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
       <div className="fixed bottom-20 right-10 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
 
       <div className="w-full max-w-md my-4 z-10">
-        {/* GLASS CARD */}
         <div className="backdrop-blur-xl bg-white/10 rounded-3xl p-6 shadow-2xl border border-white/20">
-          
-          {/* LOGO */}
           <div className="text-center mb-5">
             <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
               Tekro-AI 2030
@@ -60,7 +55,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* BUTTONS GRID */}
           <div className="grid grid-cols-2 gap-2 mb-4">
             {buttons.map((btn) => (
               <button
@@ -77,7 +71,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* CHAT BOX */}
           <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-4 h-80 overflow-y-auto mb-4 border border-white/10">
             {chat.length === 0 && (
               <p className="text-gray-400 text-center text-sm mt-32">
@@ -90,9 +83,8 @@ export default function Home() {
                   <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 rounded-2xl rounded-br-md max-w-[80%] shadow-lg">
                     {c.q}
                   </div>
-                </div>
                 <div className="flex justify-start">
-                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-2xl rounded-bl-md max-w-[80%] border border-white/10">
+                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-2xl rounded-bl-md max-w-[80%] border border-white/10 whitespace-pre-wrap">
                     {c.a || (loading && i === chat.length - 1? '...' : '')}
                   </div>
                 </div>
@@ -100,7 +92,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* INPUT */}
           <div className="flex gap-2">
             <input
               className="flex-1 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cyan-400 transition"
@@ -122,4 +113,4 @@ export default function Home() {
       </div>
     </div>
   )
-                }
+}
