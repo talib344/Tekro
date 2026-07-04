@@ -1,4 +1,4 @@
-'use client'
+
 import { useState, useRef, useEffect } from 'react'
 
 export default function Home() {
@@ -140,6 +140,4 @@ export default function Home() {
 
         <p className="text-center text-slate-600 text-xs mt-6">Powered by Groq LLaMA 3.3 70B</p>
       </div>
-    </main>
-  )
-                }
+    </main
