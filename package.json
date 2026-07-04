@@ -1,4 +1,4 @@
-
+{
   "name": "tekro-ai-2030",
   "version": "1.0.0",
   "private": true,
@@ -13,11 +13,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
-  "devDependencies": {
+   "devDependencies": {
     "tailwindcss": "^3.4.3",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "eslint": "^8",
-        "eslint-config-next": "14.2.3"
+    "eslint-config-next": "14.2.3"
   }
-}
+} 
