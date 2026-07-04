@@ -1,628 +1,284 @@
-
-import { useState, useRef, useEffect } from 'react'
+'use client'
+import { useState } from 'react'
 
 export default function Home() {
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [mode, setMode] = useState('AI Chat 2x')
-  const [loading, setLoading] = useState(false)
-  const [isPremium, setIsPremium] = useState(false)
-  const [showUpgrade, setShowUpgrade] = useState(false)
-  const [usageCount, setUsageCount] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [theme, setTheme] = useState('dark')
-  const [chatHistory, setChatHistory] = useState([])
-  const [copySuccess, setCopySuccess] = useState('')
-  const messagesEndRef = useRef(null)
+  const [activeCategory, setActiveCategory] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const FREE_LIMIT = 5
-
-  const modes = [
-    { name: 'AI Chat 2x', icon: '🤖', color: 'from-cyan-500 to-blue-500', premium: false, desc: '2x faster responses' },
-    { name: 'Code Gen', icon: '💻', color: 'from-purple-500 to-pink-500', premium: false, desc: 'Generate code instantly' },
-    { name: 'Debug Code', icon: '🐛', color: 'from-green-500 to-emerald-500', premium: true, desc: 'Fix bugs with AI' },
-    { name: 'Web Search', icon: '🌐', color: 'from-orange-500 to-red-500', premium: true, desc: 'Real-time web data' },
-    { name: 'PDF Analyze', icon: '📄', color: 'from-yellow-500 to-amber-500', premium: true, desc: 'Extract PDF insights' },
-    { name: 'Image AI', icon: '🎨', color: 'from-indigo-500 to-violet-500', premium: true, desc: 'Generate & analyze images' }
+  const categories = [
+    'All', 'AI Chat', 'Image', 'Video', 'Audio', 'Code', 'Writing', 'Business'
   ]
 
-  const pricingPlans = [
+  const tools = [
     {
-      name: 'Starter',
-      price: '$9',
-      period: '/month',
-      features: ['50 Messages/day', 'Code Gen + AI Chat', 'Email Support', 'No Ads', 'Export Chats'],
-      color: 'from-blue-600 to-cyan-600'
+      id: 1,
+      name: 'Tekro AI Chat',
+      category: 'AI Chat',
+      desc: 'Advanced conversational AI powered by GPT-4',
+      icon: '💬',
+      rating: 4.9,
+      users: '2.4M'
     },
     {
-      name: 'Pro',
-      price: '$29',
-      period: '/month',
-      features: ['Unlimited Messages', 'All 6 AI Modes', 'Priority Support', 'API Access', 'Custom Themes', 'Chat History', 'Voice Input'],
-      color: 'from-purple-600 to-pink-600',
-      popular: true
+      id: 2,
+      name: 'ImageGen Pro',
+      category: 'Image',
+      desc: 'Create stunning AI images in seconds',
+      icon: '🎨',
+      rating: 4.8,
+      users: '1.8M'
     },
     {
-      name: 'Enterprise',
-      price: '$99',
-      period: '/month',
-      features: ['Everything in Pro', 'Dedicated Server', '24/7 Support', 'White Label', 'Team Seats', 'Custom Models', 'SLA Guarantee'],
-      color: 'from-orange-600 to-red-600'
+      id: 3,
+      name: 'VideoForge AI',
+      category: 'Video',
+      desc: 'Generate professional videos from text',
+      icon: '🎬',
+      rating: 4.7,
+      users: '950K'
+    },
+    {
+      id: 4,
+      name: 'AudioCraft',
+      category: 'Audio',
+      desc: 'AI voice synthesis and music generation',
+      icon: '🎵',
+      rating: 4.8,
+      users: '1.2M'
+    },
+    {
+      id: 5,
+      name: 'CodeWizard',
+      category: 'Code',
+      desc: 'AI-powered code generation and debugging',
+      icon: '⚡',
+      rating: 4.9,
+      users: '3.1M'
+    },
+    {
+      id: 6,
+      name: 'WriteSmart AI',
+      category: 'Writing',
+      desc: 'Content creation for blogs and marketing',
+      icon: '✍️',
+      rating: 4.7,
+      users: '1.5M'
+    },
+    {
+      id: 7,
+      name: 'BizAnalyst',
+      category: 'Business',
+      desc: 'AI business insights and automation',
+      icon: '📊',
+      rating: 4.6,
+      users: '800K'
+    },
+    {
+      id: 8,
+      name: 'PhotoEnhance AI',
+      category: 'Image',
+      desc: 'Upscale and restore images with AI',
+      icon: '🖼️',
+      rating: 4.8,
+      users: '2.1M'
     }
   ]
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  useEffect(() => {
-    const savedPremium = localStorage.getItem('tekro_premium')
-    const savedUsage = localStorage.getItem('tekro_usage')
-    const savedTheme = localStorage.getItem('tekro_theme')
-    if (savedPremium === 'true') setIsPremium(true)
-    if (savedUsage) setUsageCount(parseInt(savedUsage))
-    if (savedTheme) setTheme(savedTheme)
-  }, [])
-
-  const handleModeSelect = (selectedMode) => {
-    const modeData = modes.find(m => m.name === selectedMode)
-    if (modeData.premium &&!isPremium) {
-      setShowUpgrade(true)
-      return
-    }
-    setMode(selectedMode)
-    setSidebarOpen(false)
-  }
-
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return
-
-    if (!isPremium && usageCount >= FREE_LIMIT) {
-      setShowUpgrade(true)
-      return
-    }
-
-    const userMsg = {
-      role: 'user',
-      content: input,
-      timestamp: new Date().toLocaleTimeString(),
-      mode: mode
-    }
-    setMessages(prev => [...prev, userMsg])
-    setInput('')
-    setLoading(true)
-
-    if (!isPremium) {
-      const newCount = usageCount + 1
-      setUsageCount(newCount)
-      localStorage.setItem('tekro_usage', newCount.toString())
-    }
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input, mode, isPremium })
-      })
-      const data = await res.json()
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.reply,
-        timestamp: new Date().toLocaleTimeString(),
-        mode: mode
-      }])
-    } catch {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Error! Check API key in Vercel Environment Variables.',
-        timestamp: new Date().toLocaleTimeString(),
-        mode: mode
-      }])
-    }
-    setLoading(false)
-  }
-
-  const handleUpgrade = (plan) => {
-    alert(`Redirecting to Stripe payment for ${plan.name} - ${plan.price}${plan.period}\n\nAfter payment, you'll get unlimited access!`)
-    setIsPremium(true)
-    localStorage.setItem('tekro_premium', 'true')
-    setShowUpgrade(false)
-  }
-
-  const clearChat = () => {
-    if (confirm('Clear all messages?')) {
-      setMessages([])
-      setUsageCount(0)
-      localStorage.setItem('tekro_usage', '0')
-    }
-  }
-
-  const exportChat = () => {
-    const chatText = messages.map(m => `[${m.timestamp}] ${m.role} (${m.mode}):\n${m.content}\n`).join('\n')
-    const blob = new Blob([chatText], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `tekro-chat-${Date.now()}.txt`
-    a.click()
-    setCopySuccess('Downloaded!')
-    setTimeout(() => setCopySuccess(''), 2000)
-  }
-
-  const copyMessage = (text) => {
-    navigator.clipboard.writeText(text)
-    setCopySuccess('Copied!')
-    setTimeout(() => setCopySuccess(''), 2000)
-  }
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark'? 'light' : 'dark'
-    setTheme(newTheme)
-    localStorage.setItem('tekro_theme', newTheme)
-  }
+  const filteredTools = tools.filter(tool => {
+    const matchesCategory = activeCategory === 'All' || tool.category === activeCategory
+    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         tool.desc.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-      </div>
-
-      <div className="relative z-10 border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-all">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                Tekro-AI 2030
-              </h1>
-              <p className="text-xs text-slate-500 hidden md:block">2x Faster | 10x Better | By Talib Ali 🇵🇰</p>
-            </div>
-            {isPremium && (
-              <span className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-xs font-bold animate-pulse">
-                ✨ PRO
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {copySuccess && (
-              <span className="text-xs text-green-400 animate-fadeIn">{copySuccess}</span>
-            )}
-            {!isPremium && (
-              <div className="hidden md:block px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
-                <p className="text-xs text-slate-400">
-                  <span className="font-bold text-cyan-400">{FREE_LIMIT - usageCount}</span> / {FREE_LIMIT} Free
-                </p>
-              </div>
-            )}
-            <button
-              onClick={() => setShowUpgrade(true)}
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
-            >
-              {isPremium? 'Manage Plan' : 'Upgrade Pro'}
-            </button>
-          </div>
-        </div>
-      </div>
-      <div className="relative z-10 max-w-7xl mx-auto p-4 md:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className={`${sidebarOpen? 'block' : 'hidden'} lg:block lg:col-span-1`}>
-            <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/10 p-4 space-y-4 sticky top-24">
-              <div className="text-center pb-4 border-b border-white/10">
-                <div className="text-4xl mb-2">🚀</div>
-                <p className="text-sm font-semibold text-slate-300">Tekro-AI 2030</p>
-                <p className="text-xs text-slate-500 mt-1">Next-Gen AI Assistant</p>
-              </div>
-
-              <div className="space-y-2">
-                <button onClick={clearChat} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium transition-all flex items-center gap-2 hover:scale-105">
-                  <span>🗑️</span> Clear Chat
-                </button>
-                <button onClick={exportChat} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium transition-all flex items-center gap-2 hover:scale-105">
-                  <span>📥</span> Export Chat
-                </button>
-              </div>
-
-              <div className="pt-4 border-t border-white/10">
-                <p className="text-xs text-slate-500 mb-3 font-semibold">SELECT AI MODE</p>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {modes.map((m) => (
-                    <button
-                      key={m.name}
-                      onClick={() => handleModeSelect(m.name)}
-                      className={`w-full p-3 rounded-xl border transition-all duration-300 text-left hover:scale-105 ${
-                        mode === m.name
-                     ? `bg-gradient-to-br ${m.color} border-transparent shadow-lg`
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{m.icon}</span>
-                          <span className="text-sm font-semibold">{m.name}</span>
-                        </div>
-                        {m.premium &&!isPremium && <span className="text-xs">🔒</span>}
-                      </div>
-                      <p className="text-xs opacity-70">{m.desc}</p>
-                    </button>
-                  ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-900/70 border-b border-cyan-500/20">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 hover:bg-cyan-500/10 rounded-lg transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl">
+                  T
                 </div>
-              </div>
-
-              {!isPremium && (
-                <div className="pt-4 border-t border-white/10">
-                  <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl p-4">
-                    <p className="text-sm font-bold mb-2 flex items-center gap-2">
-                      <span>⚡</span> Upgrade to Pro
-                    </p>
-                    <p className="text-xs text-slate-400 mb-3">Unlock all modes + Unlimited messages + Priority support</p>
-                    <button
-                      onClick={() => setShowUpgrade(true)}
-                      className="w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
-                    >
-                      View Plans - $9/mo
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="lg:col-span-3">
-            <div className="bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-              <div className="h-[calc(100vh-280px)] md:h-[600px] overflow-y-auto p-6 space-y-4">
-                {messages.length === 0 && (
-                  <div className="text-center text-slate-500 mt-20">
-                    <div className="text-6xl mb-4 animate-bounce">🤖</div>
-                    <p className="text-lg font-semibold mb-2">{mode} Mode Active</p>
-                    <p className="text-sm mb-4">Ask anything to get started...</p>
-                    {!isPremium && (
-                      <div className="inline-block px-4 py-2 bg-amber-500/20 border border-amber-500/30 rounded-xl">
-                        <p className="text-xs text-amber-400">
-                          Free Plan: <span className="font-bold">{FREE_LIMIT - usageCount}</span> messages left today
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {messages.map((msg, i) => (
-                  <div key={i} className={`flex ${msg.role === 'user'? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-                    <div className={`max-w-[85%] md:max-w-[75%] group`}>
-                      <div className={`p-4 rounded-2xl ${
-                        msg.role === 'user'
-                     ? 'bg-gradient-to-br from-cyan-600 to-blue-600 text-white'
-                        : 'bg-white/10 border border-white/20'
-                      }`}>
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <span className="text-xs opacity-70 font-medium">
-                            {msg.role === 'user'? 'You' : 'Tekro-AI'} • {msg.mode}
-                          </span>
-                          <button
-                            onClick={() => copyMessage(msg.content)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:text-cyan-400"
-                          >
-                            📋
-                          </button>
-                        </div>
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                        <p className="text-xs opacity-50 mt-2">{msg.timestamp}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white/10 border border-white/20 p-4 rounded-2xl">
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                        </div>
-                        <span className="text-xs text-slate-400">Tekro is thinking...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div className="p-4 bg-black/20 border-t border-white/10">
-                <div className="flex gap-2 mb-2">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' &&!e.shiftKey && sendMessage()}
-                    placeholder={isPremium? `Message Tekro-AI (${mode})...` : `Message Tekro-AI... (${FREE_LIMIT - usageCount} left)`}
-                    disabled={!isPremium && usageCount >= FREE_LIMIT}
-                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={loading ||!input.trim() || (!isPremium && usageCount >= FREE_LIMIT)}
-                    className="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-cyan-500/50 transition-all hover:scale-105"
-                  >
-                    {loading? '...' : 'Send'}
-                  </button>
-                </div>
-                {!isPremium && usageCount >= FREE_LIMIT && (
-                  <p className="text-xs text-amber-500 text-center">
-                    Daily limit reached. <button onClick={() => setShowUpgrade(true)} className="underline font-semibold hover:text-amber-400">Upgrade to Pro</button> for unlimited access
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {showUpgrade && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-slate-900 border border-white/10 rounded-3xl max-w-6xl w-full max-h- overflow-y-auto">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-4xl font-black mb-2 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                    Upgrade to Tekro Pro
-                  </h2>
-                  <p className="text-slate-400">Unlock unlimited power with premium features</p>
-                </div>
-                <button onClick={() => setShowUpgrade(false)} className="p-2 hover:bg-white/10 rounded-lg transition-all">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                {pricingPlans.map((plan) => (
-                  <div key={plan.name} className={`relative bg-white/5 border rounded-2xl p-6 transition-all hover:scale-105 ${plan.popular? 'border-purple-500 shadow-lg shadow-purple-500/50' : 'border-white/10'}`}>
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-xs font-bold">
-                        MOST POPULAR
-                      </div>
-                    )}
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-5xl font-black">{plan.price}</span>
-                        <span className="text-slate-400">{plan.period}</span>
-                      </div>
-                    </div>
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-green-400 mt-0.5">✓</span>
-                          <span className="text-slate-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      onClick={() => handleUpgrade(plan)}
-                      className={`w-full py-3 bg-gradient-to-r ${plan.color} rounded-xl font-semibold hover:shadow-lg transition-all`}
-                    >
-                      Choose {plan.name}
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h4 className="font-bold mb-4 text-center">Why Upgrade?</h4>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🚀</div>
-                    <p className="font-semibold mb-1">Unlimited Usage</p>
-                    <p className="text-xs text-slate-400">No daily limits. Chat as much as you want</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">⚡</div>
-                    <p className="font-semibold mb-1">All AI Modes</p>
-                    <p className="text-xs text-slate-400">Access Web Search, PDF, Image AI & more</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">💎</div>
-                    <p className="font-semibold mb-1">Priority Support</p>
-                    <p className="text-xs text-slate-400">Get help within 1 hour, 24/7</p>
-                  </div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    Tekro AI 2030
+                  </h1>
+                  <p className="text-xs text-slate-400">Next-Gen AI Tools</p>
                 </div>
               </div>
-
-              <div className="text-center text-sm text-slate-500 mt-6">
-                <p>🔒 Secure payment via Stripe • Cancel anytime • 7-day money back guarantee</p>
-                <p className="mt-2">Questions? Email: support@tekro-ai.com</p>
+            </div>
+              <div className="hidden md:flex items-center gap-4 flex-1 max-w-xl mx-8">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Search AI tools..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 bg-slate-800/50 border border-cyan-500/20 rounded-xl focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition"
+                />
+                <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition">
+                Sign In
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </header>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-     .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-                          <p className="text-xs text-slate-400">All 6 AI Modes</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-1">⚡</div>
-                    <p className="font-semibold text-sm">Priority</p>
-                    <p className="text-xs text-slate-400">Fast Response</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-1">💾</div>
-                    <p className="font-semibold text-sm">Export</p>
-                    <p className="text-xs text-slate-400">Save Chats</p>
-                  </div>
-                </div>
-              </div>
-                        <div className="text-center text-sm text-slate-500 mt-6">
-            <p>🔒 Pro features coming soon</p>
-            <p className="mt-2">Questions? Email: support@tekro-ai.com</p>
-          </div>
-
-              
-                
-                
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div   
-    <div className="max-w-7xl mx-auto flex">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
         {/* Sidebar */}
-        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:sticky top-[65px] left-0 h-[calc(100vh-65px)] w-72 bg-slate-900/50 backdrop-blur-xl border-r border-cyan-500/20 p-4 overflow-y-auto transition-transform z-40`}>
+        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:sticky top-0 left-0 h-[calc(100vh-65px)] w-72 bg-slate-900/50 backdrop-blur-xl border-r border-cyan-500/20 p-4 overflow-y-auto transition-transform z-40`}>
           <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border border-cyan-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🚀</span>
-                <h3 className="font-bold">Tekro-AI 2030</h3>
-              </div>
-              <p className="text-xs text-slate-400">Next-Gen AI Assistant</p>
-            </div>
-
-            <button
-              onClick={clearChat}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl transition"
-            >
-              <span>🗑️</span>
-              <span className="text-sm">Clear Chat</span>
-            </button>
-
-            <button
-              onClick={exportChat}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl transition"
-            >
-              <span>📤</span>
-              <span className="text-sm">Export Chat</span>
-            </button>
-
-            <div className="pt-4 border-t border-slate-700/50">
-              <p className="text-xs font-semibold text-slate-500 mb-3 px-2">SELECT AI MODE</p>
-              <div className="space-y-2">
-                {modes.map(mode => (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Categories</h3>
+              <div className="space-y-1">
+                {categories.map(cat => (
                   <button
-                    key={mode.name}
+                    key={cat}
                     onClick={() => {
-                      setSelectedMode(mode.name)
+                      setActiveCategory(cat)
                       setSidebarOpen(false)
                     }}
-                    className={`w-full text-left p-3 rounded-xl transition-all ${
-                      selectedMode === mode.name
-                        ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-                        : 'bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30'
+                    className={`w-full text-left px-4 py-2.5 rounded-lg transition ${
+                      activeCategory === cat
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400'
+                        : 'hover:bg-slate-800/50 text-slate-300'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <span className="text-xl">{mode.icon}</span>
-                      <div>
-                        <p className="font-semibold text-sm">{mode.name}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{mode.desc}</p>
-                      </div>
-                    </div>
+                    {cat}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800">
+              <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Stats</h3>
+              <div className="space-y-3">
+                <div className="bg-slate-800/30 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-cyan-400">50+</p>
+                  <p className="text-xs text-slate-400">AI Tools</p>
+                </div>
+                <div className="bg-slate-800/30 rounded-lg p-3">
+                  <p className="text-2xl font-bold text-blue-400">10M+</p>
+                  <p className="text-xs text-slate-400">Active Users</p>
+                </div>
               </div>
             </div>
           </div>
         </aside>
 
-        {/* Main Chat Area */}
-        <main className="flex-1 p-4 lg:p-6">
-          <div className="max-w-4xl mx-auto">
-            {messages.length === 0 ? (
-              <div className="h-[calc(100vh-200px)] flex items-center justify-center">
-                <div className="text-center space-y-4 p-8 rounded-2xl bg-slate-900/30 backdrop-blur-xl border border-cyan-500/20">
-                  <div className="text-6xl">🤖</div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                    {selectedMode} Mode Active
-                  </h2>
-                  <p className="text-slate-400">Ask anything to get started...</p>
-                </div>
+        {/* Main Content */}
+        <main className="flex-1 min-w-0">
+          {/* Mobile Search */}
+          <div className="md:hidden mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search AI tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 pl-10 bg-slate-800/50 border border-cyan-500/20 rounded-xl focus:outline-none focus:border-cyan-500/50"
+              />
+              <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Hero Section */}
+          <div className="mb-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Welcome to Tekro AI 2030
+            </h2>
+            <p className="text-slate-300 text-lg mb-6">
+              Discover the most powerful AI tools for creators, developers, and businesses
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition">
+                Explore Tools
+              </button>
+              <button className="px-6 py-3 bg-slate-800/50 border border-cyan-500/20 rounded-xl font-semibold hover:bg-slate-800 transition">
+                Watch Demo
+              </button>
+            </div>
+          </div>
+
+          {/* Tools Grid */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">
+                {activeCategory === 'All' ? 'All Tools' : activeCategory}
+                <span className="text-slate-400 text-lg ml-2">({filteredTools.length})</span>
+              </h3>
+            </div>
+
+            {filteredTools.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-slate-400 text-lg">No tools found. Try a different search.</p>
               </div>
             ) : (
-              <div className="space-y-4 mb-4 pb-32">
-                {messages.map((msg, idx) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredTools.map(tool => (
                   <div
-                    key={idx}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                    key={tool.id}
+                    className="group bg-slate-800/30 backdrop-blur border border-cyan-500/10 rounded-2xl p-6 hover:border-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/10 transition-all cursor-pointer"
                   >
-                    <div
-                      className={`max-w-[80%] p-4 rounded-2xl ${
-                        msg.role === 'user'
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30'
-                          : 'bg-slate-800/80 backdrop-blur-xl border border-slate-700/50'
-                      }`}
-                    >
-                      <p className="text-xs opacity-70 mb-1">{msg.mode}</p>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="text-4xl">{tool.icon}</div>
+                      <div className="flex items-center gap-1 text-yellow-400">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                        </svg>
+                        <span className="text-sm font-semibold">{tool.rating}</span>
+                      </div>
+                    </div>
+                    <h4 className="text-xl font-bold mb-2 group-hover:text-cyan-400 transition">
+                      {tool.name}
+                    </h4>
+                    <p className="text-slate-400 text-sm mb-4 line-clamp-2">
+                      {tool.desc}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">
+                        {tool.category}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {tool.users} users
+                      </span>
                     </div>
                   </div>
                 ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 p-4 rounded-2xl">
-                      <div className="flex gap-2">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
-          </div>
-                    {/* Input Area */}
-          <div className="fixed bottom-0 left-0 right-0 lg:left-72 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent p-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex gap-2 p-2 bg-slate-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-2xl shadow-2xl shadow-cyan-500/10">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder={`Message Tekro-AI (${selectedMode})...`}
-                  className="flex-1 px-4 py-3 bg-transparent outline-none text-sm placeholder:text-slate-500"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-sm shadow-lg shadow-cyan-500/30 transition-all hover:scale-105"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
           </div>
         </main>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
         />
       )}
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   )
 }
