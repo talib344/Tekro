@@ -463,16 +463,166 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+                        <div className="text-center text-sm text-slate-500 mt-6">
+            <p>🔒 Pro features coming soon</p>
+            <p className="mt-2">Questions? Email: support@tekro-ai.com</p>
+          </div>
 
-              <div className="text-center text-sm text-slate-500 mt-6">
-                <p>🔒 Pro features coming soon</p>
-                <p className="mt-2">Questions? Email: support@tekro-ai.com</p>
+              
+                
+                
               </div>
             </div>
           </div>
         </div>
       )}
+    </div   
+    <div className="max-w-7xl mx-auto flex">
+        {/* Sidebar */}
+        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:sticky top-[65px] left-0 h-[calc(100vh-65px)] w-72 bg-slate-900/50 backdrop-blur-xl border-r border-cyan-500/20 p-4 overflow-y-auto transition-transform z-40`}>
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border border-cyan-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">🚀</span>
+                <h3 className="font-bold">Tekro-AI 2030</h3>
+              </div>
+              <p className="text-xs text-slate-400">Next-Gen AI Assistant</p>
+            </div>
+
+            <button
+              onClick={clearChat}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl transition"
+            >
+              <span>🗑️</span>
+              <span className="text-sm">Clear Chat</span>
+            </button>
+
+            <button
+              onClick={exportChat}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl transition"
+            >
+              <span>📤</span>
+              <span className="text-sm">Export Chat</span>
+            </button>
+
+            <div className="pt-4 border-t border-slate-700/50">
+              <p className="text-xs font-semibold text-slate-500 mb-3 px-2">SELECT AI MODE</p>
+              <div className="space-y-2">
+                {modes.map(mode => (
+                  <button
+                    key={mode.name}
+                    onClick={() => {
+                      setSelectedMode(mode.name)
+                      setSidebarOpen(false)
+                    }}
+                    className={`w-full text-left p-3 rounded-xl transition-all ${
+                      selectedMode === mode.name
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+                        : 'bg-slate-800/30 hover:bg-slate-800/50 border border-slate-700/30'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-xl">{mode.icon}</span>
+                      <div>
+                        <p className="font-semibold text-sm">{mode.name}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{mode.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Chat Area */}
+        <main className="flex-1 p-4 lg:p-6">
+          <div className="max-w-4xl mx-auto">
+            {messages.length === 0 ? (
+              <div className="h-[calc(100vh-200px)] flex items-center justify-center">
+                <div className="text-center space-y-4 p-8 rounded-2xl bg-slate-900/30 backdrop-blur-xl border border-cyan-500/20">
+                  <div className="text-6xl">🤖</div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                    {selectedMode} Mode Active
+                  </h2>
+                  <p className="text-slate-400">Ask anything to get started...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-4 pb-32">
+                {messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-4 rounded-2xl ${
+                        msg.role === 'user'
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30'
+                          : 'bg-slate-800/80 backdrop-blur-xl border border-slate-700/50'
+                      }`}
+                    >
+                      <p className="text-xs opacity-70 mb-1">{msg.mode}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 p-4 rounded-2xl">
+                      <div className="flex gap-2">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+                    {/* Input Area */}
+          <div className="fixed bottom-0 left-0 right-0 lg:left-72 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex gap-2 p-2 bg-slate-900/80 backdrop-blur-xl border border-cyan-500/30 rounded-2xl shadow-2xl shadow-cyan-500/10">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder={`Message Tekro-AI (${selectedMode})...`}
+                  className="flex-1 px-4 py-3 bg-transparent outline-none text-sm placeholder:text-slate-500"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={loading}
+                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-sm shadow-lg shadow-cyan-500/30 transition-all hover:scale-105"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
+        />
+      )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   )
 }
-    
