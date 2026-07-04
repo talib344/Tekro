@@ -13,12 +13,12 @@ export default async function handler(req, res) {
   if (req.method!== 'POST') {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
-
-  try {
-    const { message, mode, language } = req.body;
+try {
+    const { message, prompt, mode, language } = req.body;
+    const userMessage = message || prompt;
 
     // Message check karo
-    if (!message) {
+    if (!userMessage) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
@@ -27,6 +27,21 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: `You are Tekro AI. Mode: ${mode || 'normal'}. Reply in ${language || 'English'}.`
+          },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 500,
+        temperature: 0.7
+      })
+    });        'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENAI_KEY}`
       },
       body: JSON.stringify({
