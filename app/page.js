@@ -1,7 +1,3 @@
-// Updated: 2026-07-04
-'use client'
-import { useState } from 'react'
-...baaki code same
 'use client'
 import { useState } from 'react'
 
