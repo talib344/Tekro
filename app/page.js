@@ -1,4 +1,4 @@
-'use client'
+
 import { useState, useRef, useEffect } from 'react'
 
 export default function Home() {
@@ -449,7 +449,30 @@ export default function Home() {
      .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
         }
-      `}</style>
-    </main>
+                          <p className="text-xs text-slate-400">All 6 AI Modes</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-1">⚡</div>
+                    <p className="font-semibold text-sm">Priority</p>
+                    <p className="text-xs text-slate-400">Fast Response</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-1">💾</div>
+                    <p className="font-semibold text-sm">Export</p>
+                    <p className="text-xs text-slate-400">Save Chats</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center text-sm text-slate-500 mt-6">
+                <p>🔒 Pro features coming soon</p>
+                <p className="mt-2">Questions? Email: support@tekro-ai.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   )
-                      }
+}
+    
