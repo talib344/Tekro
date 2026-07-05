@@ -8,48 +8,57 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 export async function POST(req) {
   try {
-    const { messages, model = 'nano', language = 'English', image, fileType } = await req.json()
+    const { messages, model = 'nano', language = 'English', image, fileType, editMode } = await req.json()
     
     const SYSTEM_PROMPT = `You are Tekro AI 2030, Enhanced AI Assistant by T Company.
-    CRITICAL: You MUST reply in ${language} language only. 
+    CRITICAL RULES:
+    1. You MUST reply ONLY in ${language} language. Never use Swedish unless ${language} is Swedish.
+    2. For "Ap ko kis ne bnaya" or "Founder" questions, reply: "Tekro AI 2030 ko T Company ne banaya hai. Ye enhanced technology hai."
     
     Capabilities:
-    1. Image Generation: DALL-E 3 quality
-    2. Photo/Video Analysis: Expert editing tips
-    3. Voice Support: TTS ready
+    1. Image Generation: DALL-E 3 HD quality
+    2. Photo/Video Analysis: Remove background, upscale 4K, enhance, cartoon
+    3. Voice Support: Male/Female TTS
     4. Multi-language: ${language}
     
-    Rules:
-    - Always reply in ${language}
-    - For image requests, describe + generate
-    - For uploads, analyze and give 3 edit suggestions
-    - Be helpful like Gemini, fast like Groq Nano 🍌`
+    Be helpful like Gemini, fast like Groq Nano 🍌`
 
-    // 1. IMAGE/VIDEO UPLOAD + PROMPT
+    // 1. ENHANCED PHOTO/VIDEO EDITING
     if (image) {
-      const userPrompt = messages[messages.length - 1]?.content || 'Analyze and suggest edits'
+      let editPrompt = messages[messages.length - 1]?.content || 'Analyze this file'
+      
+      // Edit mode specific prompts
+      const editPrompts = {
+        'remove-bg': 'Remove the background from this image and make it transparent. Explain steps.',
+        'upscale': 'Upscale this image to 4K quality. Suggest AI tools.',
+        'enhance': 'Auto enhance this photo: fix lighting, colors, sharpness.',
+        'cartoon': 'Convert this to cartoon/anime style. Describe how.'
+      }
+      if (editMode) editPrompt = editPrompts[editMode] || editPrompt
+
       const completion = await openai.chat.completions.create({
         messages: [
-          { role: 'system', content: `You are expert editor. Reply in ${language}.` },
+          { role: 'system', content: `You are expert photo/video editor. Reply ONLY in ${language}. Give 3 specific steps.` },
           { role: 'user', content: [
-            { type: 'text', text: userPrompt },
+            { type: 'text', text: editPrompt },
             { type: 'image_url', image_url: { url: image } }
           ]}
         ],
         model: 'gpt-4o-mini',
-        max_tokens: 800
+        max_tokens: 1000
       })
       return Response.json({ 
         message: completion.choices[0]?.message?.content,
-        model: 'gpt-4o-vision'
+        model: 'gpt-4o-vision-enhanced'
       })
     }
 
     const messagesWithSystem = [{ role: 'system', content: SYSTEM_PROMPT },...messages]
     const lastUserMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
     
-    // 2. IMAGE GENERATION
-    if (lastUserMsg.includes('photo') || lastUserMsg.includes('image') || lastUserMsg.includes('generate') || lastUserMsg.includes('create') || lastUserMsg.includes('banao')) {
+    // 2. IMAGE GENERATION - DALL-E 3 HD
+    if (lastUserMsg.includes('photo') || lastUserMsg.includes('image') || lastUserMsg.includes('generate') || 
+        lastUserMsg.includes('create') || lastUserMsg.includes('banao') || lastUserMsg.includes('tasveer')) {
       try {
         const dalleResponse = await openai.images.generate({
           model: "dall-e-3",
@@ -58,17 +67,18 @@ export async function POST(req) {
           size: "1024x1024",
           quality: "hd"
         })
+        const msg = language === 'Urdu'? `Image ban gayi ✅: "${messages[messages.length - 1].content}"` : 
+                    language === 'Hindi'? `Image ban gayi ✅: "${messages[messages.length - 1].content}"` :
+                    `Generated HD image ✅: "${messages[messages.length - 1].content}"`
         return Response.json({ 
-          message: language === 'Urdu'? `Image ban gayi: "${messages[messages.length - 1].content}"` : 
-                   language === 'Hindi'? `Image ban gayi: "${messages[messages.length - 1].content}"` :
-                   `Generated image for: "${messages[messages.length - 1].content}"`,
-          model: 'dall-e-3',
+          message: msg,
+          model: 'dall-e-3-hd',
           image: dalleResponse.data[0].url
         })
       } catch (e) {}
     }
     
-    // 3. CHAT MODELS
+    // 3. CHAT MODELS WITH LANGUAGE LOCK
     if (model === 'nano' || model === 'groq') {
       const completion = await groq.chat.completions.create({
         messages: messagesWithSystem,
