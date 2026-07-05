@@ -22,7 +22,7 @@
     "mammoth": "^1.8.0",
     "zustand": "^4.5.4",
     "fuse.js": "^7.0.0",
-    "react-hook-form": "^7.52.1"
+    "react-hook-form": "^7.52.1",
     "next-themes": "^0.3.0"
   },
   "devDependencies": {
