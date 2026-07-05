@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
-    "next-auth": "^4.24.7"
   },
   "dependencies": {
     "next": "14.2.5",
@@ -24,7 +23,8 @@
     "zustand": "^4.5.4",
     "fuse.js": "^7.0.0",
     "react-hook-form": "^7.52.1",
-    "next-themes": "^0.3.0"
+    "next-themes": "^0.3.0",
+    "next-auth": "^4.24.7"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
