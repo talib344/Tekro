@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { FaImage, FaMagic, FaDownload, FaMicrophone, FaVolumeUp, FaCog, FaHistory, FaRocket, FaGem, FaBolt, FaTrash, FaCopy, FaShare, FaExpand, FaCompress, FaStop } from 'react-icons/fa'
+import { FaImage, FaMagic, FaDownload, FaMicrophone, FaVolumeUp, FaCog, FaHistory, FaRocket, FaGem, FaBolt, FaTrash, FaCopy, FaShare, FaStop } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -25,10 +25,8 @@ export default function Home() {
   const recognitionRef = useRef(null)
   const synthRef = useRef(null)
 
-  // Initialize Speech Recognition + Synthesis
   useEffect(() => {
     if (typeof window!== 'undefined') {
-      // Speech Recognition
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
         const recognition = new SpeechRecognition()
@@ -57,14 +55,12 @@ export default function Home() {
         recognitionRef.current = recognition
       }
 
-      // Speech Synthesis
       if ('speechSynthesis' in window) {
         synthRef.current = window.speechSynthesis
       }
     }
   }, [])
 
-  // Load History from LocalStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('tekro-history')
     const savedStats = localStorage.getItem('tekro-stats')
@@ -72,16 +68,14 @@ export default function Home() {
     if (savedStats) setStats(JSON.parse(savedStats))
   }, [])
 
-  // Save History
   useEffect(() => {
     localStorage.setItem('tekro-history', JSON.stringify(history))
     localStorage.setItem('tekro-stats', JSON.stringify(stats))
   }, [history, stats])
 
-  // Voice Input Handler - Direct Browser API
   const startVoiceInput = () => {
     if (!recognitionRef.current) {
-      toast.error('Voice not supported. Use Chrome/Edge on Desktop')
+      toast.error('Voice not supported. Use Chrome/Edge')
       return
     }
     if (isListening) {
@@ -91,27 +85,23 @@ export default function Home() {
     }
   }
 
-  // Text to Speech - Direct Browser API
   const speakText = (text) => {
     if (!synthRef.current) {
-      toast.error('TTS not supported in this browser')
+      toast.error('TTS not supported')
       return
     }
 
-    synthRef.current.cancel() // Stop any current speech
-
+    synthRef.current.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.rate = 1.0
     utterance.pitch = 1.0
     utterance.volume = 1.0
-
     utterance.onstart = () => setIsSpeaking(true)
     utterance.onend = () => setIsSpeaking(false)
     utterance.onerror = () => {
       toast.error('Speech failed')
       setIsSpeaking(false)
     }
-
     synthRef.current.speak(utterance)
     toast.success('🔊 Speaking...')
   }
@@ -124,12 +114,11 @@ export default function Home() {
     }
   }
 
-  // Image Upload Handler
   const handleImageUpload = (e) => {
     const file = e.target.files[0]
     if (!file) return
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 10 * 1024) {
       toast.error('❌ Image too large. Max 10MB allowed')
       return
     }
@@ -149,17 +138,18 @@ export default function Home() {
     reader.readAsDataURL(file)
   }
 
-  // Drag & Drop Handler
+  // FIXED: Drag & Drop Handler - Ye line theek ki hai
   const handleDrop = (e) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      const input = { target: { files: } }
-      handleImageUpload(input)
+      const dataTransfer = new DataTransfer()
+      dataTransfer.items.add(file)
+      const event = { target: { files: dataTransfer.files } }
+      handleImageUpload(event)
     }
   }
 
-  // Main Submit Handler
   const handleSubmit = async (mode = null) => {
     if (!prompt &&!uploadedImage) {
       toast.error('⚠️ Enter prompt or upload image first')
@@ -194,12 +184,10 @@ export default function Home() {
         if (data.image) setImage(data.image)
         if (data.analysis) setAnalysisData(data.analysis)
 
-        // Auto-speak if enabled
         if (voiceEnabled && data.message) {
           speakText(data.message.substring(0, 500))
         }
 
-        // Update stats
         setStats(prev => ({
           generated: prev.generated + (data.image? 1 : 0),
           upscaled: prev.upscaled + (data.model?.includes('8k')? 1 : 0),
@@ -207,7 +195,6 @@ export default function Home() {
           tokens: prev.tokens + (data.tokens || 0)
         }))
 
-        // Add to history
         const historyItem = {
           id: Date.now(),
           prompt: prompt.substring(0, 100),
@@ -233,7 +220,6 @@ export default function Home() {
     setLoading(false)
   }
 
-  // Download Image HD
   const downloadImage = async () => {
     if (!image) return
     try {
@@ -251,13 +237,11 @@ export default function Home() {
     }
   }
 
-  // Copy to Clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
     toast.success('📋 Copied to clipboard')
   }
 
-  // Share Result
   const shareResult = async () => {
     if (navigator.share && image) {
       try {
@@ -275,7 +259,6 @@ export default function Home() {
     }
   }
 
-  // Clear All
   const clearAll = () => {
     setPrompt('')
     setResult('')
@@ -288,7 +271,6 @@ export default function Home() {
     toast.success('🗑️ Cleared all')
   }
 
-  // Load from History
   const loadFromHistory = (item) => {
     setPrompt(item.fullPrompt)
     setResult(item.fullResult)
@@ -297,7 +279,6 @@ export default function Home() {
     toast.success('📜 Loaded from history')
   }
 
-  // Style Options
   const styleOptions = [
     { value: 'photorealistic', label: '📸 Photorealistic', desc: 'Ultra realistic photos' },
     { value: 'cinematic', label: '🎬 Cinematic', desc: 'Movie-style dramatic' },
@@ -309,7 +290,6 @@ export default function Home() {
     <main className="min-h-screen bg-[#030712] text-white" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
       <Toaster position="top-center" />
 
-      {/* PREMIUM HEADER */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -349,7 +329,6 @@ export default function Home() {
         </div>
       </motion.header>
 
-      {/* STATS BAR */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
@@ -373,13 +352,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* LEFT PANEL - INPUT */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* TABS */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {[
               { id: 'generate', label: 'Generate 8K', icon: FaMagic },
@@ -392,7 +368,7 @@ export default function Home() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                   activeTab === tab.id
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
@@ -401,7 +377,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* INPUT CARD */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -443,7 +418,6 @@ export default function Home() {
               disabled={loading}
             />
 
-            {/* STYLE SELECTOR */}
             <div className="mb-4">
               <label className="text-sm text-gray-400 mb-2 block">Art Style</label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -453,7 +427,7 @@ export default function Home() {
                     onClick={() => setStyle(opt.value)}
                     className={`p-3 rounded-lg border-2 transition-all text-left ${
                       style === opt.value
-                      ? 'border-blue-500 bg-blue-500/10'
+                     ? 'border-blue-500 bg-blue-500/10'
                         : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
@@ -464,7 +438,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* IMAGE UPLOAD */}
             <div className="mb-4">
               <label className="text-sm text-gray-400 mb-2 block">Upload Image (Optional)</label>
               <input
@@ -498,7 +471,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ACTION BUTTONS */}
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleSubmit()}
@@ -530,7 +502,6 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* RESULT CARD */}
           <AnimatePresence>
             {result && (
               <motion.div
@@ -566,10 +537,8 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-        {/* RIGHT PANEL - PREVIEW & HISTORY */}
         <div className="space-y-6">
 
-          {/* IMAGE PREVIEW */}
           <AnimatePresence>
             {image && (
               <motion.div
@@ -609,7 +578,6 @@ export default function Home() {
             )}
           </AnimatePresence>
 
-          {/* QUICK ACTIONS */}
           <div className="card-premium">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <FaBolt className="text-amber-400" />
@@ -633,7 +601,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* FEATURES LIST */}
           <div className="card-premium">
             <h3 className="text-lg font-bold mb-4">✨ Enterprise Features</h3>
             <div className="space-y-3 text-sm">
@@ -659,7 +626,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SETTINGS MODAL */}
       <AnimatePresence>
         {showSettings && (
           <motion.div
@@ -689,15 +655,6 @@ export default function Home() {
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${voiceEnabled? 'ml-6' : 'ml-1'}`} />
                   </button>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>Auto-Speak Results</span>
-                  <button
-                    onClick={() => setVoiceEnabled(!voiceEnabled)}
-                    className={`w-12 h-6 rounded-full transition-all ${voiceEnabled? 'bg-blue-500' : 'bg-gray-700'}`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${voiceEnabled? 'ml-6' : 'ml-1'}`} />
-                  </button>
-                </div>
                 <button onClick={() => setShowSettings(false)} className="btn-primary w-full">
                   Save Settings
                 </button>
@@ -707,7 +664,6 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* HISTORY MODAL */}
       <AnimatePresence>
         {showHistory && (
           <motion.div
@@ -751,7 +707,6 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* FOOTER */}
       <footer className="mt-12 py-8 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
           <p>Tekro AI 2030 Enterprise • Powered by Gemini 1.5 Pro + Llama 70B</p>
@@ -761,5 +716,3 @@ export default function Home() {
     </main>
   )
 }
-// Additional utility functions and components
-// Total lines: 1000+
