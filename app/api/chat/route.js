@@ -10,7 +10,7 @@ export async function POST(req) {
   try {
     const { messages, model = 'groq' } = await req.json()
     
-    // GROQ
+    // GROQ - FAST + FREE
     if (model === 'groq') {
       const completion = await groq.chat.completions.create({
         messages,
@@ -24,7 +24,7 @@ export async function POST(req) {
       })
     }
     
-    // GEMINI
+    // GEMINI - FREE TIER
     if (model === 'gemini') {
       const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
       const chat = geminiModel.startChat({
@@ -41,7 +41,7 @@ export async function POST(req) {
       })
     }
     
-    // OPENAI
+    // OPENAI FALLBACK
     const completion = await openai.chat.completions.create({
       messages,
       model: 'gpt-4o-mini',
