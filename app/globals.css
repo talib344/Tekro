@@ -2,14 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-slate-950 text-slate-100;
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
 }
 
-.glass {
-  @apply bg-slate-900/40 backdrop-blur-xl border border-slate-800/50;
+.glass-card {
+  @apply backdrop-blur-xl bg-slate-900/50 border border-slate-800 shadow-2xl;
 }
 
-.neon-glow {
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+.btn-glow {
+  @apply bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:scale-105;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+}
+
+.cursor-glow {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.8) 0%, rgba(99,102,241,0) 70%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
 }
