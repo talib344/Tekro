@@ -1,8 +1,6 @@
-'use client'
-import { motion } from 'framer-motion'
-import { PenTool, Code, FileText, Image, Languages, Calculator, Mail, BookOpen, FileCode, Bug, Sparkles, Newspaper } from 'lucide-react'
-import Link from 'next/link'
-
+<button onClick={() => alert('Coming soon!')} className="block mt-4 text-sm text-neon-blue hover:underline">
+  Open Tool →
+</button>
 const tools = [
   { name: 'Blog Writer', icon: PenTool, desc: 'SEO blogs with keywords', category: 'Writing', path: '/tools/blog' },
   { name: 'Email Writer', icon: Mail, desc: 'Professional emails', category: 'Writing', path: '/tools/email' },
