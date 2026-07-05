@@ -4,12 +4,14 @@ import { Send, Mic, Upload, Settings, Sparkles, Menu } from 'lucide-react'
 import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import toast, { Toaster } from 'react-hot-toast'
+import AIAssistant from '@/components/ai-assistant'
 
 export default function Home() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [showTools, setShowTools] = useState(false)
+  const [currentModel, setCurrentModel] = useState('groq')
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -30,7 +32,10 @@ export default function Home() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMsg] })
+        body: JSON.stringify({ 
+          messages: [...messages, userMsg],
+          model: currentModel 
+        })
       })
       
       if (!res.ok) throw new Error('API Failed')
@@ -38,7 +43,11 @@ export default function Home() {
       const data = await res.json()
       if (data.error) throw new Error(data.error)
       
-      setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: data.message,
+        model: data.model 
+      }])
     } catch (err) {
       toast.error('Something went wrong. Check API keys.')
       console.error(err)
@@ -56,6 +65,12 @@ export default function Home() {
     { name: 'Email Writer', icon: '📧', prompt: 'Write a professional email about: ' },
   ]
 
+  const handleAssistantTool = (tool, query) => {
+    setInput(`${tool}: ${query}`)
+    setShowTools(false)
+    toast.success(`Opening ${tool}...`)
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Toaster position="top-center" />
@@ -64,19 +79,30 @@ export default function Home() {
       <header className="sticky top-0 z-50 glass-card border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl md:text-2xl font-bold gradient-text">Tekro AI 2030</h1>
-          <button 
-            onClick={() => setShowTools(!showTools)}
-            className="btn-glow px-4 py-2 rounded-xl flex items-center gap-2"
-          >
-            <Menu size={18} />
-            <span className="hidden sm:inline">Tools</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <select 
+              value={currentModel} 
+              onChange={(e) => setCurrentModel(e.target.value)}
+              className="bg-slate-800/50 rounded-lg px-3 py-2 text-sm outline-none hidden sm:block"
+            >
+              <option value="groq">Groq ⚡</option>
+              <option value="gemini">Gemini 💎</option>
+              <option value="openai">GPT-4o 🧠</option>
+            </select>
+            <button 
+              onClick={() => setShowTools(!showTools)}
+              className="btn-glow px-4 py-2 rounded-xl flex items-center gap-2"
+            >
+              <Menu size={18} />
+              <span className="hidden sm:inline">Tools</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Tools Grid - Responsive */}
       {showTools && (
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4 w-full">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {tools.map((tool, i) => (
               <motion.button
@@ -104,6 +130,26 @@ export default function Home() {
             <Sparkles className="mx-auto mb-4 text-pink-500" size={48} />
             <h2 className="text-2xl font-bold gradient-text mb-2">How can I help you?</h2>
             <p className="text-slate-400">Ask anything, upload files, or use tools</p>
+            <div className="mt-6 flex flex-wrap gap-2 justify-center">
+              <button 
+                onClick={() => setInput('Write a blog on AI in 2030')}
+                className="glass-card px-4 py-2 rounded-lg text-sm hover:border-pink-500/50"
+              >
+                ✍️ Write Blog
+              </button>
+              <button 
+                onClick={() => setInput('Create resume for software engineer')}
+                className="glass-card px-4 py-2 rounded-lg text-sm hover:border-pink-500/50"
+              >
+                📄 Make Resume
+              </button>
+              <button 
+                onClick={() => setInput('Explain quantum computing')}
+                className="glass-card px-4 py-2 rounded-lg text-sm hover:border-pink-500/50"
+              >
+                💡 Explain Topic
+              </button>
+            </div>
           </div>
         )}
         
@@ -115,6 +161,11 @@ export default function Home() {
             className={`mb-4 ${msg.role === 'user'? 'ml-auto max-w-[85%] sm:max-w-[70%]' : 'mr-auto max-w-[85%] sm:max-w-[70%]'}`}
           >
             <div className={`glass-card rounded-2xl p-4 ${msg.role === 'user'? 'bg-gradient-to-r from-pink-600/20 to-blue-600/20' : ''}`}>
+              {msg.model && (
+                <div className="text-xs text-slate-500 mb-2 uppercase">
+                  {msg.model === 'groq'? '⚡ Groq' : msg.model === 'gemini'? '💎 Gemini' : '🧠 GPT-4o'}
+                </div>
+              )}
               <ReactMarkdown className="prose prose-invert prose-sm max-w-none">
                 {msg.content}
               </ReactMarkdown>
@@ -124,10 +175,11 @@ export default function Home() {
         
         {loading && (
           <div className="glass-card rounded-2xl p-4 mr-auto max-w-[70%]">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <span className="text-sm text-slate-400 ml-2">Thinking...</span>
             </div>
           </div>
         )}
@@ -160,6 +212,10 @@ export default function Home() {
           </button>
         </div>
       </div>
+
+      {/* AI Assistant Floating Button */}
+      <AIAssistant onToolSelect={handleAssistantTool} />
+      
     </div>
   )
 }
