@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { FaImage, FaMagic, FaDownload, FaMicrophone, FaVolumeUp, FaCog, FaHistory, FaRocket, FaGem, FaBolt, FaTrash, FaCopy, FaShare, FaExpand, FaCompress } from 'react-icons/fa'
+import { FaImage, FaMagic, FaDownload, FaMicrophone, FaVolumeUp, FaCog, FaHistory, FaRocket, FaGem, FaBolt, FaTrash, FaCopy, FaShare, FaExpand, FaCompress, FaStop } from 'react-icons/fa'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -20,37 +20,47 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
   const [analysisData, setAnalysisData] = useState(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const fileInputRef = useRef(null)
-  const audioRef = useRef(null)
   const recognitionRef = useRef(null)
+  const synthRef = useRef(null)
 
-  // Initialize Speech Recognition
+  // Initialize Speech Recognition + Synthesis
   useEffect(() => {
-    if (typeof window!== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const recognition = new webkitSpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = false
-      recognition.lang = 'en-US'
+    if (typeof window!== 'undefined') {
+      // Speech Recognition
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        const recognition = new SpeechRecognition()
+        recognition.continuous = false
+        recognition.interimResults = false
+        recognition.lang = 'en-US'
 
-      recognition.onstart = () => {
-        setIsListening(true)
-        toast.success('🎤 Listening... Speak now')
+        recognition.onstart = () => {
+          setIsListening(true)
+          toast.success('🎤 Listening... Speak now')
+        }
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript
+          setPrompt(prev => prev + ' ' + transcript)
+          toast.success('✅ Voice captured: ' + transcript.substring(0, 50))
+          setIsListening(false)
+        }
+
+        recognition.onerror = (event) => {
+          toast.error('Voice Error: ' + event.error)
+          setIsListening(false)
+        }
+
+        recognition.onend = () => setIsListening(false)
+        recognitionRef.current = recognition
       }
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript
-        setPrompt(prev => prev + ' ' + transcript)
-        toast.success('✅ Voice captured: ' + transcript.substring(0, 50))
-        setIsListening(false)
+      // Speech Synthesis
+      if ('speechSynthesis' in window) {
+        synthRef.current = window.speechSynthesis
       }
-
-      recognition.onerror = (event) => {
-        toast.error('Voice Error: ' + event.error)
-        setIsListening(false)
-      }
-
-      recognition.onend = () => setIsListening(false)
-      recognitionRef.current = recognition
     }
   }, [])
 
@@ -68,10 +78,10 @@ export default function Home() {
     localStorage.setItem('tekro-stats', JSON.stringify(stats))
   }, [history, stats])
 
-  // Voice Input Handler
+  // Voice Input Handler - Direct Browser API
   const startVoiceInput = () => {
     if (!recognitionRef.current) {
-      toast.error('Voice not supported in this browser. Use Chrome/Edge')
+      toast.error('Voice not supported. Use Chrome/Edge on Desktop')
       return
     }
     if (isListening) {
@@ -81,7 +91,40 @@ export default function Home() {
     }
   }
 
-  // Image Upload Handler with Validation
+  // Text to Speech - Direct Browser API
+  const speakText = (text) => {
+    if (!synthRef.current) {
+      toast.error('TTS not supported in this browser')
+      return
+    }
+
+    synthRef.current.cancel() // Stop any current speech
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.rate = 1.0
+    utterance.pitch = 1.0
+    utterance.volume = 1.0
+
+    utterance.onstart = () => setIsSpeaking(true)
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => {
+      toast.error('Speech failed')
+      setIsSpeaking(false)
+    }
+
+    synthRef.current.speak(utterance)
+    toast.success('🔊 Speaking...')
+  }
+
+  const stopSpeaking = () => {
+    if (synthRef.current) {
+      synthRef.current.cancel()
+      setIsSpeaking(false)
+      toast.success('🔇 Stopped')
+    }
+  }
+
+  // Image Upload Handler
   const handleImageUpload = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -111,7 +154,7 @@ export default function Home() {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
-      const input = { target: { files: [file] } }
+      const input = { target: { files: } }
       handleImageUpload(input)
     }
   }
@@ -151,11 +194,9 @@ export default function Home() {
         if (data.image) setImage(data.image)
         if (data.analysis) setAnalysisData(data.analysis)
 
-        // Play voice if enabled
-        if (data.voiceUrl && voiceEnabled) {
-          audioRef.current = new Audio(data.voiceUrl)
-          audioRef.current.play()
-          toast.success('🔊 Playing voice response')
+        // Auto-speak if enabled
+        if (voiceEnabled && data.message) {
+          speakText(data.message.substring(0, 500))
         }
 
         // Update stats
@@ -243,6 +284,7 @@ export default function Home() {
     setImagePreview(null)
     setAnalysisData(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
+    if (synthRef.current) synthRef.current.cancel()
     toast.success('🗑️ Cleared all')
   }
 
@@ -350,7 +392,7 @@ export default function Home() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                   activeTab === tab.id
-                   ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
@@ -385,6 +427,11 @@ export default function Home() {
                 >
                   <FaVolumeUp />
                 </button>
+                {isSpeaking && (
+                  <button onClick={stopSpeaking} className="btn-secondary p-2 bg-red-600" data-tooltip="Stop Speaking">
+                    <FaStop />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -406,7 +453,7 @@ export default function Home() {
                     onClick={() => setStyle(opt.value)}
                     className={`p-3 rounded-lg border-2 transition-all text-left ${
                       style === opt.value
-                       ? 'border-blue-500 bg-blue-500/10'
+                      ? 'border-blue-500 bg-blue-500/10'
                         : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
@@ -504,6 +551,11 @@ export default function Home() {
                     <button onClick={shareResult} className="btn-secondary p-2" data-tooltip="Share">
                       <FaShare />
                     </button>
+                    {voiceEnabled && (
+                      <button onClick={() => speakText(result)} className="btn-secondary p-2" data-tooltip="Speak">
+                        <FaVolumeUp />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="prose prose-invert max-w-none">
@@ -637,6 +689,15 @@ export default function Home() {
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${voiceEnabled? 'ml-6' : 'ml-1'}`} />
                   </button>
                 </div>
+                <div className="flex items-center justify-between">
+                  <span>Auto-Speak Results</span>
+                  <button
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    className={`w-12 h-6 rounded-full transition-all ${voiceEnabled? 'bg-blue-500' : 'bg-gray-700'}`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${voiceEnabled? 'ml-6' : 'ml-1'}`} />
+                  </button>
+                </div>
                 <button onClick={() => setShowSettings(false)} className="btn-primary w-full">
                   Save Settings
                 </button>
@@ -700,5 +761,5 @@ export default function Home() {
     </main>
   )
 }
-//... 200+ more lines for utility functions, hooks, components, etc
+// Additional utility functions and components
 // Total lines: 1000+
