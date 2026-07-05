@@ -5,9 +5,6 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 const REMOVE_BG_API = 'https://api.remove.bg/v1.0/removebg'
 
-// COMPANY OWNER MODE - ALL PRO UNLOCKED
-const isProUser = true
-
 async function generateImageAdvanced(prompt, style = 'photorealistic') {
   const stylePrompts = {
     photorealistic: 'ultra photorealistic, 8K, Hasselblad X2D, studio lighting, hyperdetailed',
@@ -49,11 +46,15 @@ export async function POST(req) {
       }, { status: 500 })
     }
 
-    const { messages, language = 'English', image, editMode, style } = await req.json()
-    const lastUserMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
-    const userPrompt = messages[messages.length - 1]?.content || ''
+    const body = await req.json()
+    const messages = body.messages || []
+    const language = body.language || 'English'
+    const image = body.image || null
+    const editMode = body.editMode || null
+    const style = body.style || 'photorealistic'
 
-    let responseData = { isPro: true, companyOwner: true }
+    const lastUserMsg = messages.length > 0? messages[messages.length - 1]?.content?.toLowerCase() || '' : ''
+    const userPrompt = messages.length > 0? messages[messages.length - 1]?.content || '' : ''
 
     // FEATURE 1: BACKGROUND REMOVE
     if (editMode === 'remove-bg' && image) {
@@ -77,7 +78,8 @@ export async function POST(req) {
             const upscaled = await upscaleTo8K(base64)
 
             return Response.json({
-            ...responseData,
+              isPro: true,
+              companyOwner: true,
               message: `✅ ENTERPRISE: 8K Background Removed\n\n• Quality: HD Transparent PNG\n• Watermark: None\n• Processing Time: ${Date.now() - startTime}ms`,
               model: 'remove-bg-8k-enterprise',
               image: upscaled,
@@ -89,13 +91,14 @@ export async function POST(req) {
         }
       }
 
-      const { upscaleUrl } = await generateImageAdvanced(`extract main subject, transparent background, 8k, perfect cutout`, 'photorealistic')
+      const result = await generateImageAdvanced(`extract main subject, transparent background, 8k, perfect cutout`, 'photorealistic')
 
       return Response.json({
-      ...responseData,
+        isPro: true,
+        companyOwner: true,
         message: '✅ ENTERPRISE: BG Removed via AI\n\n• Method: Flux Pro AI\n• Quality: 8K Upscaled',
         model: 'ai-bg-remover-8k',
-        image: upscaleUrl,
+        image: result.upscaleUrl,
         processingTime: Date.now() - startTime
       })
     }
@@ -103,16 +106,17 @@ export async function POST(req) {
     // FEATURE 2: AI EDITING - TATTOO/OBJECTS
     if (image && (lastUserMsg.includes('tattoo') || lastUserMsg.includes('add') || lastUserMsg.includes('edit'))) {
       const editText = userPrompt.replace(/add tattoo|tattoo|edit|change|remove|modify/gi, '').trim() || 'AKM'
-      const { upscaleUrl } = await generateImageAdvanced(
+      const result = await generateImageAdvanced(
         `Ultra photorealistic edit: ${editText}. Natural skin texture, perfect lighting, 8K masterpiece`,
-        style || 'photorealistic'
+        style
       )
 
       return Response.json({
-      ...responseData,
+        isPro: true,
+        companyOwner: true,
         message: `✅ ENTERPRISE: 8K AI Edit Complete\n\n• Edit: "${editText}"\n• Generation: Flux Pro Model\n• Upscale: 4K → 8K\n• Time: ${Date.now() - startTime}ms`,
         model: 'flux-8k-edit',
-        image: upscaleUrl,
+        image: result.upscaleUrl,
         processingTime: Date.now() - startTime
       })
     }
@@ -121,14 +125,15 @@ export async function POST(req) {
     if (lastUserMsg.includes('photo') || lastUserMsg.includes('image') || lastUserMsg.includes('generate') ||
         lastUserMsg.includes('create') || lastUserMsg.includes('banao') || lastUserMsg.includes('draw')) {
 
-      const { url, upscaleUrl } = await generateImageAdvanced(userPrompt, style || 'photorealistic')
+      const result = await generateImageAdvanced(userPrompt, style)
 
       return Response.json({
-      ...responseData,
-        message: `✅ ENTERPRISE: 8K Image Generated\n\n• Prompt: "${userPrompt}"\n• Resolution: 8192x8192\n• Style: ${style || 'Photorealistic'}\n• Time: ${Date.now() - startTime}ms`,
+        isPro: true,
+        companyOwner: true,
+        message: `✅ ENTERPRISE: 8K Image Generated\n\n• Prompt: "${userPrompt}"\n• Resolution: 8192x8192\n• Style: ${style}\n• Time: ${Date.now() - startTime}ms`,
         model: 'flux-pro-8k-enterprise',
-        image: upscaleUrl,
-        thumbnail: url,
+        image: result.upscaleUrl,
+        thumbnail: result.url,
         processingTime: Date.now() - startTime
       })
     }
@@ -145,7 +150,8 @@ export async function POST(req) {
       ])
 
       return Response.json({
-      ...responseData,
+        isPro: true,
+        companyOwner: true,
         message: `✅ ENTERPRISE: Analysis Complete\n\n${result.response.text()}`,
         model: 'gemini-1.5-pro-vision',
         processingTime: Date.now() - startTime
@@ -163,7 +169,8 @@ export async function POST(req) {
         max_tokens: 4096,
       })
       return Response.json({
-      ...responseData,
+        isPro: true,
+        companyOwner: true,
         message: completion.choices[0]?.message?.content,
         model: 'Llama-3.1-70B-Enterprise',
         tokens: completion.usage?.total_tokens,
@@ -173,7 +180,8 @@ export async function POST(req) {
       const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
       const result = await geminiModel.generateContent(userPrompt)
       return Response.json({
-      ...responseData,
+        isPro: true,
+        companyOwner: true,
         message: result.response.text(),
         model: 'Gemini-1.5-Pro-Enterprise',
         processingTime: Date.now() - startTime
