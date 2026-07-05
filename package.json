@@ -1,6 +1,6 @@
 {
   "name": "tekro-ai-2030-enterprise",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,6 @@
     "framer-motion": "^11.3.8",
     "react-hot-toast": "^2.4.1",
     "react-dropzone": "^14.2.3",
-    "react-speech-kit": "^3.0.1",
     "axios": "^1.7.2",
     "sharp": "^0.33.4"
   },
