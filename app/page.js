@@ -138,15 +138,14 @@ export default function Home() {
     reader.readAsDataURL(file)
   }
 
-  // FIXED: Drag & Drop Handler - Ye line theek ki hai
+  // FIXED: Drag & Drop Handler - Ye line theek hai ab
   const handleDrop = (e) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
       const dataTransfer = new DataTransfer()
       dataTransfer.items.add(file)
-      const event = { target: { files: dataTransfer.files } }
-      handleImageUpload(event)
+      handleImageUpload({ target: { files: dataTransfer.files } })
     }
   }
 
@@ -368,7 +367,7 @@ export default function Home() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                   activeTab === tab.id
-                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
@@ -427,7 +426,7 @@ export default function Home() {
                     onClick={() => setStyle(opt.value)}
                     className={`p-3 rounded-lg border-2 transition-all text-left ${
                       style === opt.value
-                     ? 'border-blue-500 bg-blue-500/10'
+                    ? 'border-blue-500 bg-blue-500/10'
                         : 'border-gray-700 hover:border-gray-600'
                     }`}
                   >
@@ -678,7 +677,7 @@ export default function Home() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               onClick={(e) => e.stopPropagation()}
-              className="card-premium max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+              className="card-premium max-w-4xl w-full max-h- overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
