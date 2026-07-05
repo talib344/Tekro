@@ -2,41 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-  }
+body {
+  @apply bg-slate-950 text-white antialiased;
+  /* Mobile first */
+  @apply overflow-x-hidden;
+}
+
+/* Pink Blue Gradient Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 80%, rgba(219, 39, 119, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .glass-card {
-  @apply backdrop-blur-xl bg-slate-900/50 border border-slate-800 shadow-2xl;
-}
-
-.btn-glow {
-  @apply bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:scale-105;
+  @apply bg-slate-900/40 backdrop-blur-xl border border-white/10 shadow-2xl;
 }
 
 .gradient-text {
-  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent;
 }
 
-.cursor-glow {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99,102,241,0.8) 0%, rgba(99,102,241,0) 70%);
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease;
+.btn-glow {
+  @apply bg-gradient-to-r from-pink-600 to-blue-600 hover:from-pink-500 hover:to-blue-500;
+  @apply shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 transition-all;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-.floating {
-  animation: float 6s ease-in-out infinite;
+/* Mobile optimizations */
+@media (max-width: 768px) {
+ .glass-card {
+    @apply rounded-xl p-3;
+  }
+  h1 {
+    @apply text-xl;
+  }
 }
