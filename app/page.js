@@ -1,10 +1,9 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { Send, Mic, Upload, Settings, Sparkles, Menu } from 'lucide-react'
+import { Send, Mic, Upload, Menu, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import toast, { Toaster } from 'react-hot-toast'
-import AIAssistant from '@/components/ai-assistant'
 
 export default function Home() {
   const [messages, setMessages] = useState([])
@@ -65,12 +64,6 @@ export default function Home() {
     { name: 'Email Writer', icon: '📧', prompt: 'Write a professional email about: ' },
   ]
 
-  const handleAssistantTool = (tool, query) => {
-    setInput(`${tool}: ${query}`)
-    setShowTools(false)
-    toast.success(`Opening ${tool}...`)
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Toaster position="top-center" />
@@ -100,7 +93,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Tools Grid - Responsive */}
+      {/* Tools Grid - Responsive: 2 col mobile, 5 col desktop */}
       {showTools && (
         <div className="max-w-7xl mx-auto px-4 py-4 w-full">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -212,10 +205,6 @@ export default function Home() {
           </button>
         </div>
       </div>
-
-      {/* AI Assistant Floating Button */}
-      <AIAssistant onToolSelect={handleAssistantTool} />
-      
     </div>
   )
 }
