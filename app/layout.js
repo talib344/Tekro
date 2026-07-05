@@ -1,24 +1,20 @@
-import { Inter } from 'next/font/google'
 import './globals.css'
-import AuthProvider from '@/components/auth-provider'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Tekro AI 2030',
-  description: 'Futuristic AI with Voice, Files, 40+ Tools',
+  description: 'Smart AI Assistant with Nano Banana 🍌',
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          {children}
+        </div>
       </body>
     </html>
   )
