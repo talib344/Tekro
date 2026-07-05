@@ -40,13 +40,19 @@ export default function ToolsPage() {
       <div className="fixed inset-0 bg-gradient-to-br from-neon-blue/10 via-transparent to-neon-purple/10 animate-gradient" style={{backgroundSize: '200% 200%'}} />
       
       <div className="relative max-w-7xl mx-auto">
-        <header className="glass rounded-2xl p-6 mb-6 neon-glow">
-          <Link href="/" className="text-slate-400 text-sm mb-2 block hover:text-neon-blue">← Back to Chat</Link>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
-            AI Tools
-          </h1>
-          <p className="text-slate-400 mt-2">22+ Premium AI tools powered by Groq</p>
-        </header>
+<header className="glass rounded-2xl p-4 mb-4 flex justify-between items-center neon-glow">
+  <div className="flex items-center gap-4">
+    <h1 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+      Tekro AI 2030
+    </h1>
+    <Link href="/tools" className="px-4 py-2 rounded-lg glass hover:neon-glow text-sm">
+      Tools
+    </Link>
+  </div>
+  <button onClick={() => setDark(!dark)} className="p-2 rounded-lg glass hover:neon-glow">
+    {dark? <Sun size={20} /> : <Moon size={20} />}
+  </button>
+</header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {tools.map((tool, i) => (
