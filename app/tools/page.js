@@ -1,8 +1,10 @@
-<button onClick={() => alert('Coming soon!')} className="block mt-4 text-sm text-neon-blue hover:underline">
-  Open Tool →
-</button>
+'use client'
+import { motion } from 'framer-motion'
+import { Pen, Code, FileText, Image, Languages, Calculator, Mail, BookOpen, FileCode, Bug, Sparkles, Newspaper } from 'lucide-react'
+import Link from 'next/link'
+
 const tools = [
-  { name: 'Blog Writer', icon: PenTool, desc: 'SEO blogs with keywords', category: 'Writing', path: '/tools/blog' },
+  { name: 'Blog Writer', icon: Pen, desc: 'SEO blogs with keywords', category: 'Writing', path: '/tools/blog' },
   { name: 'Email Writer', icon: Mail, desc: 'Professional emails', category: 'Writing', path: '/tools/email' },
   { name: 'Article Writer', icon: Newspaper, desc: 'Long form articles', category: 'Writing', path: '/tools/article' },
   { name: 'Story Writer', icon: BookOpen, desc: 'Creative stories', category: 'Writing', path: '/tools/story' },
@@ -30,7 +32,7 @@ export default function ToolsPage() {
   return (
     <div className="min-h-screen bg-slate-950 p-4">
       <div className="fixed inset-0 bg-gradient-to-br from-neon-blue/10 via-transparent to-neon-purple/10 animate-gradient" style={{backgroundSize: '200% 200%'}} />
-
+      
       <div className="relative max-w-7xl mx-auto">
         <header className="glass rounded-2xl p-6 mb-6 neon-glow">
           <Link href="/" className="text-slate-400 text-sm mb-2 block hover:text-neon-blue">← Back to Chat</Link>
