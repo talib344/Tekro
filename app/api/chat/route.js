@@ -24,18 +24,24 @@ export async function POST(req) {
       })
     }
     
-    // GEMINI - FREE TIER
+    // GEMINI
     if (model === 'gemini') {
       const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const chat = geminiModel.startChat({
+        history: messages.slice(0, -1).map(m => ({
+          role: m.role === 'assistant'? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }))
+      })
       const lastMsg = messages[messages.length - 1].content
-      const result = await geminiModel.generateContent(lastMsg)
+      const result = await chat.sendMessage(lastMsg)
       return Response.json({ 
         message: result.response.text(),
         model: 'gemini'
       })
     }
     
-    // OPENAI FALLBACK
+    // OPENAI
     const completion = await openai.chat.completions.create({
       messages,
       model: 'gpt-4o-mini',
