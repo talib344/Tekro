@@ -1,6 +1,6 @@
 {
   "name": "tekro-ai-2030-enterprise",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
