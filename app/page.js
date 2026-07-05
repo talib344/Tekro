@@ -34,44 +34,44 @@ export default function Home() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: '#111', color: '#fff', padding: 20, fontFamily: 'sans-serif' }}>
+    <main style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', padding: 20, fontFamily: 'system-ui' }}>
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8, background: 'linear-gradient(to right, #60a5fa, #a78bfa)', WebkitBackgroundClip: 'text', color: 'transparent' }}>
+        <h1 style={{ fontSize: 36, marginBottom: 8, background: 'linear-gradient(to right, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', color: 'transparent', fontWeight: 800 }}>
           Tekro AI 2030 ENTERPRISE
         </h1>
-        <p style={{ color: '#9ca3af', marginBottom: 24 }}>Company Owner Mode: Gemini 1.5 Pro + Llama 70B + 8K Upscale ✅ All FREE</p>
+        <p style={{ color: '#9ca3af', marginBottom: 24 }}>Company Owner: Gemini 1.5 Pro + Llama 70B + 8K ✅ All FREE</p>
         
-        <div style={{ background: '#1f2937', borderRadius: 8, padding: 24, marginBottom: 16 }}>
+        <div style={{ background: '#1a1a1a', borderRadius: 12, padding: 24, marginBottom: 16, border: '1px solid #2a2a2a' }}>
           <textarea 
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Add tattoo AKM | Create 8K lion | Remove background | Analyze photo"
-            style={{ width: '100%', height: 100, background: '#111827', borderRadius: 4, padding: 12, color: '#fff', border: '1px solid #374151' }}
+            style={{ width: '100%', height: 100, background: '#0a0a0a', borderRadius: 8, padding: 12, color: '#fff', border: '1px solid #333', outline: 'none' }}
           />
           
           <input type="file" accept="image/*" onChange={handleImageUpload} style={{ marginTop: 12, fontSize: 14 }} />
-          {uploadedImage && <img src={uploadedImage} alt="Upload" style={{ marginTop: 8, height: 96, borderRadius: 4 }} />}
+          {uploadedImage && <img src={uploadedImage} alt="Upload" style={{ marginTop: 12, height: 100, borderRadius: 8 }} />}
           
           <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
-            <button onClick={() => handleSubmit()} disabled={loading} style={{ padding: '8px 16px', background: '#2563eb', borderRadius: 4, border: 'none', color: '#fff' }}>
+            <button onClick={() => handleSubmit()} disabled={loading} style={{ padding: '10px 20px', background: '#2563eb', borderRadius: 8, border: 'none', color: '#fff', cursor: 'pointer' }}>
               {loading? 'Generating...' : 'Generate 8K'}
             </button>
-            <button onClick={() => handleSubmit('remove-bg')} disabled={loading ||!uploadedImage} style={{ padding: '8px 16px', background: '#7c3aed', borderRadius: 4, border: 'none', color: '#fff' }}>
+            <button onClick={() => handleSubmit('remove-bg')} disabled={loading ||!uploadedImage} style={{ padding: '10px 20px', background: '#7c3aed', borderRadius: 8, border: 'none', color: '#fff', cursor: 'pointer' }}>
               Remove BG 4K
             </button>
           </div>
         </div>
 
         {result && (
-          <div style={{ background: '#1f2937', borderRadius: 8, padding: 24, marginBottom: 16 }}>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{result}</p>
+          <div style={{ background: '#1a1a1a', borderRadius: 12, padding: 24, marginBottom: 16, border: '1px solid #2a2a2a' }}>
+            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{result}</p>
           </div>
         )}
         
         {image && (
-          <div style={{ background: '#1f2937', borderRadius: 8, padding: 24 }}>
-            <img src={image} alt="Generated" style={{ width: '100%', borderRadius: 4 }} />
-            <a href={image} download="tekro-8k.png" style={{ marginTop: 16, display: 'inline-block', padding: '8px 16px', background: '#16a34a', borderRadius: 4, color: '#fff', textDecoration: 'none' }}>
+          <div style={{ background: '#1a1a1a', borderRadius: 12, padding: 24, border: '1px solid #2a2a2a' }}>
+            <img src={image} alt="Generated" style={{ width: '100%', borderRadius: 8 }} />
+            <a href={image} download="tekro-8k.png" style={{ marginTop: 16, display: 'inline-block', padding: '10px 20px', background: '#16a34a', borderRadius: 8, color: '#fff', textDecoration: 'none' }}>
               Download 8K
             </a>
           </div>
