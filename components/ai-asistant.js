@@ -14,6 +14,7 @@ export default function AIAssistant({ onToolSelect }) {
     if (t.includes('code') || t.includes('explain')) return 'Code Explainer'
     if (t.includes('pdf') || t.includes('summarize')) return 'PDF Summarizer'
     if (t.includes('translate')) return 'Translator'
+    if (t.includes('email')) return 'Email Writer'
     return 'Chat'
   }
 
