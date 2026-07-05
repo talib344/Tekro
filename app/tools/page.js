@@ -10,20 +10,16 @@ const tools = [
   { name: 'Story Writer', icon: BookOpen, desc: 'Creative stories', category: 'Writing', path: '/tools/story' },
   { name: 'YouTube Script', icon: FileText, desc: 'Viral video scripts', category: 'Writing', path: '/tools/youtube' },
   { name: 'LinkedIn Post', icon: FileText, desc: 'Professional posts', category: 'Writing', path: '/tools/linkedin' },
-  
   { name: 'Python Coder', icon: Code, desc: 'Python code generator', category: 'Coding', path: '/tools/python' },
   { name: 'React Coder', icon: Code, desc: 'React/Next.js code', category: 'Coding', path: '/tools/react' },
   { name: 'Code Debugger', icon: Bug, desc: 'Fix bugs instantly', category: 'Coding', path: '/tools/debug' },
   { name: 'Code Explainer', icon: FileCode, desc: 'Explain any code', category: 'Coding', path: '/tools/explain' },
   { name: 'SQL Generator', icon: FileCode, desc: 'Database queries', category: 'Coding', path: '/tools/sql' },
   { name: 'Regex Builder', icon: FileCode, desc: 'Complex regex', category: 'Coding', path: '/tools/regex' },
-
   { name: 'PDF Summarizer', icon: FileText, desc: 'Extract key points', category: 'PDF', path: '/tools/pdf' },
   { name: 'PDF Q&A', icon: FileText, desc: 'Ask questions from PDF', category: 'PDF', path: '/tools/pdf-qa' },
-  
   { name: 'Image Caption', icon: Image, desc: 'AI image description', category: 'Image', path: '/tools/caption' },
   { name: 'OCR Reader', icon: Image, desc: 'Extract text from image', category: 'Image', path: '/tools/ocr' },
-  
   { name: 'Translator', icon: Languages, desc: '100+ languages', category: 'Utility', path: '/tools/translate' },
   { name: 'Grammar Fixer', icon: Sparkles, desc: 'Fix grammar mistakes', category: 'Utility', path: '/tools/grammar' },
   { name: 'Rewriter', icon: Sparkles, desc: 'Rewrite any text', category: 'Utility', path: '/tools/rewrite' },
@@ -32,27 +28,19 @@ const tools = [
   { name: 'JSON Formatter', icon: FileCode, desc: 'Format JSON data', category: 'Utility', path: '/tools/json' },
 ]
 
-const categories = ['All', 'Writing', 'Coding', 'PDF', 'Image', 'Utility']
-
 export default function ToolsPage() {
   return (
     <div className="min-h-screen bg-slate-950 p-4">
       <div className="fixed inset-0 bg-gradient-to-br from-neon-blue/10 via-transparent to-neon-purple/10 animate-gradient" style={{backgroundSize: '200% 200%'}} />
-      
+
       <div className="relative max-w-7xl mx-auto">
-<header className="glass rounded-2xl p-4 mb-4 flex justify-between items-center neon-glow">
-  <div className="flex items-center gap-4">
-    <h1 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
-      Tekro AI 2030
-    </h1>
-    <Link href="/tools" className="px-4 py-2 rounded-lg glass hover:neon-glow text-sm">
-      Tools
-    </Link>
-  </div>
-  <button onClick={() => setDark(!dark)} className="p-2 rounded-lg glass hover:neon-glow">
-    {dark? <Sun size={20} /> : <Moon size={20} />}
-  </button>
-</header>
+        <header className="glass rounded-2xl p-6 mb-6 neon-glow">
+          <Link href="/" className="text-slate-400 text-sm mb-2 block hover:text-neon-blue">← Back to Chat</Link>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+            AI Tools
+          </h1>
+          <p className="text-slate-400 mt-2">22+ Premium AI tools powered by Groq</p>
+        </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {tools.map((tool, i) => (
