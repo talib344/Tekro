@@ -1,71 +1,199 @@
 'use client'
+import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { motion } from 'framer-motion'
-import { PenTool, Code, FileText, Image, Languages, Calculator, Mail, BookOpen, FileCode, Bug, Sparkles, Newspaper } from 'lucide-react'
+import { Send, Mic, MicOff, Copy, Moon, Sun, Volume2, StopCircle } from 'lucide-react'
 import Link from 'next/link'
 
-const tools = [
-  { name: 'Blog Writer', icon: PenTool, desc: 'SEO blogs with keywords', category: 'Writing', path: '/tools/blog' },
-  { name: 'Email Writer', icon: Mail, desc: 'Professional emails', category: 'Writing', path: '/tools/email' },
-  { name: 'Article Writer', icon: Newspaper, desc: 'Long form articles', category: 'Writing', path: '/tools/article' },
-  { name: 'Story Writer', icon: BookOpen, desc: 'Creative stories', category: 'Writing', path: '/tools/story' },
-  { name: 'YouTube Script', icon: FileText, desc: 'Viral video scripts', category: 'Writing', path: '/tools/youtube' },
-  { name: 'LinkedIn Post', icon: FileText, desc: 'Professional posts', category: 'Writing', path: '/tools/linkedin' },
-  
-  { name: 'Python Coder', icon: Code, desc: 'Python code generator', category: 'Coding', path: '/tools/python' },
-  { name: 'React Coder', icon: Code, desc: 'React/Next.js code', category: 'Coding', path: '/tools/react' },
-  { name: 'Code Debugger', icon: Bug, desc: 'Fix bugs instantly', category: 'Coding', path: '/tools/debug' },
-  { name: 'Code Explainer', icon: FileCode, desc: 'Explain any code', category: 'Coding', path: '/tools/explain' },
-  { name: 'SQL Generator', icon: FileCode, desc: 'Database queries', category: 'Coding', path: '/tools/sql' },
-  { name: 'Regex Builder', icon: FileCode, desc: 'Complex regex', category: 'Coding', path: '/tools/regex' },
+export default function Page() {
+  const [messages, setMessages] = useState([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [dark, setDark] = useState(true)
+  const [listening, setListening] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
+  const messagesEndRef = useRef(null)
+  const recognitionRef = useRef(null)
 
-  { name: 'PDF Summarizer', icon: FileText, desc: 'Extract key points', category: 'PDF', path: '/tools/pdf' },
-  { name: 'PDF Q&A', icon: FileText, desc: 'Ask questions from PDF', category: 'PDF', path: '/tools/pdf-qa' },
-  
-  { name: 'Image Caption', icon: Image, desc: 'AI image description', category: 'Image', path: '/tools/caption' },
-  { name: 'OCR Reader', icon: Image, desc: 'Extract text from image', category: 'Image', path: '/tools/ocr' },
-  
-  { name: 'Translator', icon: Languages, desc: '100+ languages', category: 'Utility', path: '/tools/translate' },
-  { name: 'Grammar Fixer', icon: Sparkles, desc: 'Fix grammar mistakes', category: 'Utility', path: '/tools/grammar' },
-  { name: 'Rewriter', icon: Sparkles, desc: 'Rewrite any text', category: 'Utility', path: '/tools/rewrite' },
-  { name: 'Summarizer', icon: Sparkles, desc: 'Summarize text', category: 'Utility', path: '/tools/summary' },
-  { name: 'Math Solver', icon: Calculator, desc: 'Step by step solve', category: 'Utility', path: '/tools/math' },
-  { name: 'JSON Formatter', icon: FileCode, desc: 'Format JSON data', category: 'Utility', path: '/tools/json' },
-]
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
-export default function ToolsPage() {
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return
+
+    const userMsg = { role: 'user', content: input }
+    setMessages(prev => [...prev, userMsg])
+    setInput('')
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMsg] })
+      })
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let aiMsg = { role: 'assistant', content: '' }
+      setMessages(prev => [...prev, aiMsg])
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value)
+        aiMsg.content += chunk
+        setMessages(prev => [...prev.slice(0, -1), {...aiMsg }])
+      }
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Error: ' + err.message }])
+    }
+    setLoading(false)
+  }
+
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Voice input not supported')
+      return
+    }
+    const recognition = new webkitSpeechRecognition()
+    recognition.lang = 'hi-IN'
+    recognition.continuous = false
+    recognition.onresult = (e) => {
+      setInput(e.results[0][0].transcript)
+      setListening(false)
+    }
+    recognition.onerror = () => setListening(false)
+    recognitionRef.current = recognition
+    recognition.start()
+    setListening(true)
+  }
+
+  const stopListening = () => {
+    recognitionRef.current?.stop()
+    setListening(false)
+  }
+
+  const speak = (text) => {
+    if (speaking) {
+      window.speechSynthesis.cancel()
+      setSpeaking(false)
+      return
+    }
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'hi-IN'
+    utterance.rate = 1
+    utterance.onend = () => setSpeaking(false)
+    window.speechSynthesis.speak(utterance)
+    setSpeaking(true)
+  }
+
+  const copyText = (text) => {
+    navigator.clipboard.writeText(text)
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 p-4">
+    <div className={`min-h-screen ${dark? 'bg-slate-950' : 'bg-slate-50'} transition-colors`}>
       <div className="fixed inset-0 bg-gradient-to-br from-neon-blue/10 via-transparent to-neon-purple/10 animate-gradient" style={{backgroundSize: '200% 200%'}} />
-      
-      <div className="relative max-w-7xl mx-auto">
-        <header className="glass rounded-2xl p-6 mb-6 neon-glow">
-          <Link href="/" className="text-slate-400 text-sm mb-2 block hover:text-neon-blue">← Back to Chat</Link>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
-            AI Tools
-          </h1>
-          <p className="text-slate-400 mt-2">22+ Premium AI tools powered by Groq</p>
+
+      <div className="relative max-w-5xl mx-auto p-4">
+        <header className="glass rounded-2xl p-4 mb-4 flex justify-between items-center neon-glow">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+              Tekro AI 2030
+            </h1>
+            <Link href="/tools" className="px-4 py-2 rounded-lg glass hover:neon-glow text-sm">
+              Tools
+            </Link>
+          </div>
+          <button onClick={() => setDark(!dark)} className="p-2 rounded-lg glass hover:neon-glow">
+            {dark? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {tools.map((tool, i) => (
+        <div className="glass rounded-2xl p-4 h- overflow-y-auto mb-4 neon-glow">
+          {messages.length === 0 && (
+            <div className="h-full flex items-center justify-center text-slate-400">
+              <p>Start chatting with Tekro AI...</p>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="glass rounded-2xl p-6 hover:neon-glow transition-all cursor-pointer group"
+              className={`mb-4 flex ${msg.role === 'user'? 'justify-end' : 'justify-start'}`}
             >
-              <tool.icon className="text-neon-blue mb-3 group-hover:scale-110 transition-transform" size={32} />
-              <h3 className="text-lg font-semibold mb-1">{tool.name}</h3>
-              <p className="text-sm text-slate-400 mb-3">{tool.desc}</p>
-              <span className="text-xs px-2 py-1 rounded-full bg-neon-blue/20 text-neon-blue">
-                {tool.category}
-              </span>
-              <Link href={tool.path} className="block mt-4 text-sm text-neon-blue hover:underline">
-                Open Tool →
-              </Link>
+              <div className={`max-w-[80%] rounded-2xl p-4 ${
+                msg.role === 'user'
+              ? 'bg-gradient-to-r from-neon-blue to-neon-purple text-white'
+                  : 'glass'
+              }`}>
+                <ReactMarkdown
+                  components={{
+                    code({node, inline, className, children,...props}) {
+                      const match = /language-(\w+)/.exec(className || '')
+                      return!inline && match? (
+                        <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div" {...props}>
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className="bg-slate-800 px-1 rounded" {...props}>{children}</code>
+                      )
+                    }
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+
+                {msg.role === 'assistant' && (
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => copyText(msg.content)} className="p-1 hover:bg-slate-800 rounded">
+                      <Copy size={16} />
+                    </button>
+                    <button onClick={() => speak(msg.content)} className="p-1 hover:bg-slate-800 rounded">
+                      {speaking? <StopCircle size={16} /> : <Volume2 size={16} />}
+                    </button>
+                  </div>
+                )}
+              </div>
             </motion.div>
           ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="glass rounded-2xl p-4 neon-glow">
+          <div className="flex gap-2">
+            <button
+              onClick={listening? stopListening : startListening}
+              className={`p-3 rounded-xl ${listening? 'bg-red-500' : 'glass'} hover:neon-glow`}
+            >
+              {listening? <MicOff size={20} /> : <Mic size={20} />}
+            </button>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Ask anything in Hindi, Urdu, or English..."
+              className="flex-1 bg-transparent outline-none"
+              disabled={loading}
+            />
+            <button
+              onClick={handleSend}
+              disabled={loading}
+              className="p-3 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple hover:neon-glow disabled:opacity-50"
+            >
+              <Send size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
