@@ -1,6 +1,6 @@
 {
-  "name": "tekro-ai-2030",
-  "version": "1.0.0",
+  "name": "ai-tools-app",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,22 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.3",
+    "next": "14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "groq-sdk": "^0.5.0",
-    "react-markdown": "^9.0.1",
-    "react-syntax-highlighter": "^15.5.0",
-    "framer-motion": "^11.3.8",
+    "framer-motion": "^11.3.19",
     "lucide-react": "^0.424.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.4.0"
+    "react-markdown": "^9.0.1",
+    "groq-sdk": "^0.7.0",
+    "openai": "^4.67.3"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.40",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.3"
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5"
   }
 }
